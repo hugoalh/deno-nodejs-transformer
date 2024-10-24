@@ -4,8 +4,8 @@ title: "Deno NodeJS Transformer"
 message: "If you use this software, please cite it using the metadata from this file."
 type: "software"
 authors:
-  - name: "hugoalh Studio"
-repository-code: "https://github.com/hugoalh-studio/deno-nodejs-transformer"
+  - name: "hugoalh"
+repository-code: "https://github.com/hugoalh/deno-nodejs-transformer"
 keywords:
   - "build"
   - "builder"

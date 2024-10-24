@@ -25,15 +25,15 @@ Deno.test("Main", {
 				"dnt",
 				"test"
 			],
-			homepage: "https://github.com/hugoalh-studio/deno-nodejs-transformer#readme",
+			homepage: "https://github.com/hugoalh/deno-nodejs-transformer#readme",
 			bugs: {
-				url: "https://github.com/hugoalh-studio/deno-nodejs-transformer/issues"
+				url: "https://github.com/hugoalh/deno-nodejs-transformer/issues"
 			},
 			license: "MIT",
 			author: "hugoalh",
 			repository: {
 				type: "git",
-				url: "git+https://github.com/hugoalh-studio/deno-nodejs-transformer.git"
+				url: "git+https://github.com/hugoalh/deno-nodejs-transformer.git"
 			},
 			scripts: {
 			},

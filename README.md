@@ -2,7 +2,7 @@
 
 [**⚖️** MIT](./LICENSE.md)
 
-[![GitHub: hugoalh-studio/deno-nodejs-transformer](https://img.shields.io/github/v/release/hugoalh-studio/deno-nodejs-transformer?label=hugoalh-studio/deno-nodejs-transformer&labelColor=181717&logo=github&logoColor=ffffff&sort=semver&style=flat "GitHub: hugoalh-studio/deno-nodejs-transformer")](https://github.com/hugoalh-studio/deno-nodejs-transformer)
+[![GitHub: hugoalh/deno-nodejs-transformer](https://img.shields.io/github/v/release/hugoalh/deno-nodejs-transformer?label=hugoalh/deno-nodejs-transformer&labelColor=181717&logo=github&logoColor=ffffff&sort=semver&style=flat "GitHub: hugoalh/deno-nodejs-transformer")](https://github.com/hugoalh/deno-nodejs-transformer)
 
 A Deno module for transform Deno package to NodeJS package.
 
@@ -27,7 +27,7 @@ This is a modified edition of the JSR package [`dnt`](https://jsr.io/@deno/dnt) 
 
 - **Remote - GitHub Raw:**
   ```
-  https://raw.githubusercontent.com/hugoalh-studio/deno-nodejs-transformer/{Tag}/mod.ts
+  https://raw.githubusercontent.com/hugoalh/deno-nodejs-transformer/{Tag}/mod.ts
   ```
 
 > [!NOTE]
@@ -109,15 +109,15 @@ This is a modified edition of the JSR package [`dnt`](https://jsr.io/@deno/dnt) 
         "dnt",
         "test"
       ],
-      homepage: "https://github.com/hugoalh-studio/deno-nodejs-transformer#readme",
+      homepage: "https://github.com/hugoalh/deno-nodejs-transformer#readme",
       bugs: {
-        url: "https://github.com/hugoalh-studio/deno-nodejs-transformer/issues"
+        url: "https://github.com/hugoalh/deno-nodejs-transformer/issues"
       },
       license: "MIT",
       author: "hugoalh",
       repository: {
         type: "git",
-        url: "git+https://github.com/hugoalh-studio/deno-nodejs-transformer.git"
+        url: "git+https://github.com/hugoalh/deno-nodejs-transformer.git"
       },
       scripts: {
       },
