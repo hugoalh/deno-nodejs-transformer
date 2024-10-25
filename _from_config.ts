@@ -2,7 +2,7 @@ import {
 	isJSONObject,
 	type JSONObject,
 	type JSONValue
-} from "https://raw.githubusercontent.com/hugoalh-studio/is-json-es/v1.0.3/mod.ts";
+} from "https://raw.githubusercontent.com/hugoalh/is-json-es/v1.0.4/mod.ts";
 import {
 	parse as parseJSONC,
 	type JsonValue
