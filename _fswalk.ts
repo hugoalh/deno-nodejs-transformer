@@ -2,11 +2,11 @@ import {
 	walk as fsWalk,
 	type WalkEntry,
 	type WalkOptions
-} from "jsr:@std/fs@^1.0.4/walk";
-import { isAbsolute as isPathAbsolute } from "jsr:@std/path@^1.0.6/is-absolute";
-import { join as joinPath } from "jsr:@std/path@^1.0.6/join";
-import { normalize as normalizePath } from "jsr:@std/path@^1.0.6/normalize";
-import { relative as getPathRelative } from "jsr:@std/path@^1.0.6/relative";
+} from "jsr:@std/fs@^1.0.5/walk";
+import { isAbsolute as isPathAbsolute } from "jsr:@std/path@^1.0.8/is-absolute";
+import { join as joinPath } from "jsr:@std/path@^1.0.8/join";
+import { normalize as normalizePath } from "jsr:@std/path@^1.0.8/normalize";
+import { relative as getPathRelative } from "jsr:@std/path@^1.0.8/relative";
 export interface FSWalkEntry {
 	/**
 	 * Whether entry is a regular directory.

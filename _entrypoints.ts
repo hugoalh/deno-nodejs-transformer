@@ -1,4 +1,4 @@
-import { partition } from "jsr:@std/collections@^1.0.7/partition";
+import { partition } from "jsr:@std/collections@^1.0.9/partition";
 import { sortObject } from "./_sort_object.ts";
 import type { EntryPoint } from "./deps.ts";
 export interface DenoNodeJSTransformerEntrypoint {

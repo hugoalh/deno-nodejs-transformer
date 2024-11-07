@@ -1,9 +1,9 @@
-import { copy as copyFS } from "jsr:@std/fs@^1.0.4/copy";
-import { emptyDir as emptyFSDir } from "jsr:@std/fs@^1.0.4/empty-dir";
-import { ensureDir as ensureFSDir } from "jsr:@std/fs@^1.0.4/ensure-dir";
-import { exists as isFSExists } from "jsr:@std/fs@^1.0.4/exists";
-import { dirname as getPathDirname } from "jsr:@std/path@^1.0.6/dirname";
-import { join as joinPath } from "jsr:@std/path@^1.0.6/join";
+import { copy as copyFS } from "jsr:@std/fs@^1.0.5/copy";
+import { emptyDir as emptyFSDir } from "jsr:@std/fs@^1.0.5/empty-dir";
+import { ensureDir as ensureFSDir } from "jsr:@std/fs@^1.0.5/ensure-dir";
+import { exists as isFSExists } from "jsr:@std/fs@^1.0.5/exists";
+import { dirname as getPathDirname } from "jsr:@std/path@^1.0.8/dirname";
+import { join as joinPath } from "jsr:@std/path@^1.0.8/join";
 import {
 	resolveEntrypoints,
 	type DenoNodeJSTransformerEntrypoint
