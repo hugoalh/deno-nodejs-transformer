@@ -40,19 +40,18 @@ This is a modified edition of the JSR package [`dnt`](https://jsr.io/@deno/dnt) 
 >   These elements are not considered part of the public API, thus no stability is guaranteed for them.
 > - It is recommended to use this module with tag for immutability.
 
-### 🛡️ Require Runtime Permissions
+### 🛡️ Runtime Permissions
 
-- [Deno](https://docs.deno.com/runtime/fundamentals/security/)
-  - Environment Variable (`env`)
-    - *Resources*
-  - File System - Read (`read`)
-    - *Resources*
-  - File System - Write (`write`)
-    - *Resources*
-  - Network (`net`)
-    - *Resources*
+- Environment Variable \[Deno: `env`\]
+  - *Resources*
+- File System - Read \[Deno: `read`\]
+  - *Resources*
+- File System - Write \[Deno: `write`\]
+  - *Resources*
+- Network \[Deno: `net`\]
+  - *Resources*
 
-## 🧩 APIs (Excerpt)
+## 🧩 APIs
 
 - ```ts
   function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformerOptions): Promise<void>;
