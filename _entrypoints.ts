@@ -54,11 +54,12 @@ export function resolveEntrypoints(entrypoints: DenoNodeJSTransformerEntrypoint[
 		name,
 		path
 	}: DenoNodeJSTransformerEntrypoint): DenoNodeJSTransformerEntrypointFmt => {
+		const pathFmt: string = path.startsWith("./") ? path : `./${path}`;
 		return {
 			executable,
-			name,
-			pathDeclaration: declaration ? `./${path.replace(/\.tsx?$/, ".d.ts")}` : undefined,
-			pathScript: `./${path.replace(/\.tsx?$/, ".js")}`
+			name: executable ? name : (name.startsWith("./") ? name : `./${name}`),
+			pathDeclaration: declaration ? pathFmt.replace(/\.tsx?$/, ".d.ts") : undefined,
+			pathScript: pathFmt.replace(/\.tsx?$/, ".js")
 		};
 	});
 	const [
