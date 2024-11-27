@@ -31,7 +31,7 @@ export {
 	getMetadataFromConfig,
 	MetadataFromConfig
 } from "./_from_config.ts";
-export interface DenoNodeJSTransformerAssetsCopyOptions {
+export interface DenoNodeJSTransformerCopyAssetsOptions {
 	from: string;
 	to: string;
 }
@@ -39,7 +39,7 @@ export interface DenoNodeJSTransformerOptions {
 	/**
 	 * Copy assets after the build, by relative path under the {@linkcode root}.
 	 */
-	assetsCopy?: (string | DenoNodeJSTransformerAssetsCopyOptions)[];
+	copyAssets?: (string | DenoNodeJSTransformerCopyAssetsOptions)[];
 	/**
 	 * Whether to enable experimental support for emit type metadata for decorators which works with the NPM package {@linkcode https://www.npmjs.com/package/reflect-metadata reflect-metadata}.
 	 * @default {false}
@@ -151,7 +151,7 @@ export interface DenoNodeJSTransformerOptions {
 }
 export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformerOptions): Promise<void> {
 	const {
-		assetsCopy = [],
+		copyAssets = [],
 		emitDecoratorMetadata = false,
 		entrypoints,
 		filterDiagnostic,
@@ -242,12 +242,12 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 		}
 		// Snapshot original files path for move files.
 		const outputDirectoryESM: string = joinPath(outputDirectory, "esm");
-		const outputDirectoryESMFilesPathSnapshot: FSWalkEntry[] = await Array.fromAsync(walkFS(outputDirectoryESM));
+		const fsSnapshotESM: FSWalkEntry[] = await Array.fromAsync(walkFS(outputDirectoryESM));
 		const renameToken: string = ((): string => {
 			let token: string;
 			do {
 				token = `${crypto.randomUUID().slice(-12)}_`;
-			} while (outputDirectoryESMFilesPathSnapshot.some(({ name }: FSWalkEntry): boolean => {
+			} while (fsSnapshotESM.some(({ name }: FSWalkEntry): boolean => {
 				return name.startsWith(token);
 			}));
 			return token;
@@ -256,7 +256,7 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 			isFile,
 			name,
 			pathRelative
-		} of outputDirectoryESMFilesPathSnapshot) {
+		} of fsSnapshotESM) {
 			if (!isFile) {
 				continue;
 			}
@@ -266,12 +266,12 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 			await Deno.rename(joinPath(outputDirectoryESM, pathRelative), joinPath(pathNewDir, `${renameToken}${name}`));
 		}
 		// Snapshot files path again for rename moved files.
-		const outputDirectoryFilesPathSnapshot: FSWalkEntry[] = await Array.fromAsync(walkFS(outputDirectory));
+		const fsSnapshotRename: FSWalkEntry[] = await Array.fromAsync(walkFS(outputDirectory));
 		for (const {
 			isFile,
 			name,
 			pathRelative
-		} of outputDirectoryFilesPathSnapshot) {
+		} of fsSnapshotRename) {
 			if (!(isFile && name.startsWith(renameToken))) {
 				continue;
 			}
@@ -281,11 +281,11 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 			entrypoints: entrypointsFmt.metadata,
 			metadataPath: joinPath(outputDirectory, "package.json")
 		});
-		for (const element of assetsCopy) {
-			if (typeof element === "string") {
-				await copyFS(element, joinPath(outputDirectory, element), { overwrite: true });
+		for (const copyAssetsEntry of copyAssets) {
+			if (typeof copyAssetsEntry === "string") {
+				await copyFS(copyAssetsEntry, joinPath(outputDirectory, copyAssetsEntry), { overwrite: true });
 			} else {
-				await copyFS(element.from, joinPath(outputDirectory, element.to), { overwrite: true });
+				await copyFS(copyAssetsEntry.from, joinPath(outputDirectory, copyAssetsEntry.to), { overwrite: true });
 			}
 		}
 	} finally {

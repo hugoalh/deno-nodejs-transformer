@@ -65,7 +65,7 @@ This is a modified edition of the JSR package [`dnt`](https://jsr.io/@deno/dnt) 
   ```
 - ```ts
   interface DenoNodeJSTransformerOptions {
-    assetsCopy?: (string | DenoNodeJSTransformerAssetsCopyOptions)[];
+    copyAssets?: (string | DenoNodeJSTransformerCopyAssetsOptions)[];
     emitDecoratorMetadata?: boolean;
     entrypoints: DenoNodeJSTransformerEntrypoint[];
     filterDiagnostic?: BuildOptions["filterDiagnostic"];

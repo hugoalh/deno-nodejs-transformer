@@ -8,7 +8,7 @@ Deno.test("Main", {
 	}
 }, async () => {
 	await invokeDenoNodeJSTransformer({
-		assetsCopy: [
+		copyAssets: [
 			"LICENSE.md",
 			"README.md"
 		],
