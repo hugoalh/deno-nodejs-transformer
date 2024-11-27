@@ -2,7 +2,7 @@ import {
 	walk as fsWalk,
 	type WalkEntry,
 	type WalkOptions
-} from "jsr:@std/fs@^1.0.5/walk";
+} from "jsr:@std/fs@^1.0.6/walk";
 import { isAbsolute as isPathAbsolute } from "jsr:@std/path@^1.0.8/is-absolute";
 import { join as joinPath } from "jsr:@std/path@^1.0.8/join";
 import { normalize as normalizePath } from "jsr:@std/path@^1.0.8/normalize";
