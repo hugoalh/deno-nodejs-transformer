@@ -56,6 +56,11 @@ export interface DenoNodeJSTransformerOptions {
 	 */
 	filterDiagnostic?: BuildOptions["filterDiagnostic"];
 	/**
+	 * Whether to fix imports injected by the engine which duplicated, unnecessary, or ruined JSDoc.
+	 * @default {true}
+	 */
+	fixInjectedImports?: boolean;
+	/**
 	 * Whether to generate declaration files (`.d.ts`).
 	 * @default {true}
 	 */
@@ -149,12 +154,14 @@ export interface DenoNodeJSTransformerOptions {
 	strictPropertyInitialization?: boolean;
 	useUnknownInCatchVariables?: boolean;
 }
+const regexpImportDNTPolyfills = /import "\.\/_dnt\.polyfills\.js";(?:\r?\nimport "\.\/_dnt\.polyfills\.js";)+/g;
 export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformerOptions): Promise<void> {
 	const {
 		copyAssets = [],
 		emitDecoratorMetadata = false,
 		entrypoints,
 		filterDiagnostic,
+		fixInjectedImports = true,
 		generateDeclaration = true,
 		generateDeclarationMap = false,
 		importsMap,
@@ -276,6 +283,30 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 				continue;
 			}
 			await Deno.rename(joinPath(outputDirectory, pathRelative), joinPath(outputDirectory, getPathDirname(pathRelative), name.slice(renameToken.length)));
+		}
+		if (fixInjectedImports) {
+			const fsSnapshotFixImports: FSWalkEntry[] = await Array.fromAsync(walkFS(outputDirectory));
+			for (const {
+				isFile,
+				pathRelative
+			} of fsSnapshotFixImports) {
+				if (!(isFile && !/^deps[\\\/]/.test(pathRelative) && !/^_dnt\..+?\.(?:d\.ts(?:\.map)?|js)$/.test(pathRelative) && (
+					pathRelative.endsWith(".d.ts") ||
+					pathRelative.endsWith(".js")
+				))) {
+					continue;
+				}
+				const pathRelativeRoot: string = joinPath(outputDirectory, pathRelative);
+				let context: string = await Deno.readTextFile(pathRelativeRoot);
+				let modified: boolean = false;
+				if (pathRelative.endsWith(".js") && regexpImportDNTPolyfills.test(pathRelative)) {
+					modified = true;
+					context = context.replaceAll(regexpImportDNTPolyfills, "import \"./_dnt.polyfills.js\";");
+				}
+				if (modified) {
+					await Deno.writeTextFile(pathRelativeRoot, context, { create: false });
+				}
+			}
 		}
 		await refactorMetadata({
 			entrypoints: entrypointsFmt.metadata,

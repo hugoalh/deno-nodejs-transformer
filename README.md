@@ -69,6 +69,7 @@ This is a modified edition of the JSR package [`dnt`](https://jsr.io/@deno/dnt) 
     emitDecoratorMetadata?: boolean;
     entrypoints: DenoNodeJSTransformerEntrypoint[];
     filterDiagnostic?: BuildOptions["filterDiagnostic"];
+    fixInjectedImports?: boolean;
     generateDeclaration?: boolean;
     generateDeclarationMap?: boolean;
     importsMap?: string;
