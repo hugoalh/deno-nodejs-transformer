@@ -1,0 +1,36 @@
+{
+	"$schema": "https://deno.land/x/deno/cli/schemas/config-file.v1.json",
+	"name": "@hugoalh/deno-nodejs-transformer",
+	"version": "0.6.0",
+	"exports": {
+		".": "./mod.ts"
+	},
+	"imports": {
+	},
+	"publish": {
+		"exclude": [
+			"**/*_bench.ts",
+			"**/*_bench.tsx",
+			"**/*_test.ts",
+			"**/*_test.tsx",
+			"**/*.bench.ts",
+			"**/*.bench.tsx",
+			"**/*.test.ts",
+			"**/*.test.tsx",
+			"**/bench.ts",
+			"**/bench.tsx",
+			"**/test.ts",
+			"**/test.tsx",
+			"npm/**",
+			".dnt.ts"
+		],
+		"include": [
+			"**/*.json",
+			"**/*.ts",
+			"**/*.tsx",
+			"jsr.jsonc",
+			"LICENSE*.md",
+			"README*.md"
+		]
+	}
+}

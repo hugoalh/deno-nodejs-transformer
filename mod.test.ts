@@ -14,12 +14,12 @@ Deno.test("Main", {
 		],
 		entrypoints: [{
 			name: ".",
-			path: "mod.ts"
+			path: "./mod.ts"
 		}],
 		generateDeclarationMap: true,
 		metadata: {
 			name: "@hugoalh/deno-nodejs-transformer-test",
-			version: "0.1.0",
+			version: "0.6.0",
 			description: "Demo of Deno NodeJS Transformer.",
 			keywords: [
 				"dnt",

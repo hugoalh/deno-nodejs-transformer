@@ -34,6 +34,18 @@
 	},
 	"lock": false,
 	"tasks": {
+		"jsr-check": {
+			"command": "deno publish --allow-dirty --config jsr.jsonc --dry-run --no-provenance",
+			"description": "Check deployment for JSR."
+		},
+		"jsr-publish": {
+			"command": "deno publish --allow-dirty --config jsr.jsonc --no-provenance",
+			"description": "Publish package to JSR."
+		},
+		"jsr-publish-provenance": {
+			"command": "deno publish --allow-dirty --config jsr.jsonc",
+			"description": "Publish package to JSR (provenance)."
+		}
 	},
 	"unstable": [
 	]
