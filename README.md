@@ -9,9 +9,9 @@ A Deno module for transform Deno package to NodeJS package.
 
 This is a modified edition of the JSR package [`dnt`](https://jsr.io/@deno/dnt) which aim for:
 
-- Always ModuleJS
+- Always force with ModuleJS
+- Hotfix engine issues
 - Improve file structure
-- Refine polyfills and shims
 - Unify configuration
 
 ## 🔰 Begin
