@@ -292,7 +292,10 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 				isFile,
 				pathRelative
 			} of fsSnapshotFixImports) {
-				if (!(isFile && !/^deps[\\\/]/.test(pathRelative) && !/^_dnt\..+?\.(?:d\.ts(?:\.map)?|js)$/.test(pathRelative) && pathRelative.endsWith(".js"))) {
+				if (!(isFile && !/^deps[\\\/]/.test(pathRelative) && !/^_dnt\..+?\.(?:d\.ts(?:\.map)?|js)$/.test(pathRelative) && (
+					pathRelative.endsWith(".d.ts") ||
+					pathRelative.endsWith(".js")
+				))) {
 					continue;
 				}
 				const pathRelativeRoot: string = joinPath(outputDirectory, pathRelative);
