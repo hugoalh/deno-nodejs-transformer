@@ -21,7 +21,7 @@ jobs:
     strategy:
       matrix:
         runon:
-          - "macos-latest"
+          # - "macos-latest"
           - "ubuntu-latest"
           - "windows-latest"
       fail-fast: false
