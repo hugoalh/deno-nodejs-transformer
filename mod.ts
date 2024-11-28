@@ -57,7 +57,7 @@ export interface DenoNodeJSTransformerOptions {
 	filterDiagnostic?: BuildOptions["filterDiagnostic"];
 	/**
 	 * Whether to fix imports injected by the engine which duplicated, unnecessary, or ruined JSDoc.
-	 * @default {true}
+	 * @default {false}
 	 */
 	fixInjectedImports?: boolean;
 	/**
@@ -160,7 +160,7 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 		emitDecoratorMetadata = false,
 		entrypoints,
 		filterDiagnostic,
-		fixInjectedImports = true,
+		fixInjectedImports = false,
 		generateDeclaration = true,
 		generateDeclarationMap = false,
 		importsMap,
