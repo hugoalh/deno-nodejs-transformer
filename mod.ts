@@ -154,7 +154,6 @@ export interface DenoNodeJSTransformerOptions {
 	strictPropertyInitialization?: boolean;
 	useUnknownInCatchVariables?: boolean;
 }
-const regexpImportDNTPolyfills = /import "\.\/_dnt\.polyfills\.js";(?:\r?\nimport "\.\/_dnt\.polyfills\.js";)+/g;
 export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformerOptions): Promise<void> {
 	const {
 		copyAssets = [],
@@ -286,22 +285,37 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 		}
 		if (fixInjectedImports) {
 			const fsSnapshotFixImports: FSWalkEntry[] = await Array.fromAsync(walkFS(outputDirectory));
+			const regexpImportDNTPolyfills = /^import ".+?\/_dnt\.polyfills\.js";\r?\n/gm;
+			const regexpImportDNTShims = /^import .*?dntShim from ".+?\/_dnt\.shims\.js";\r?\n/gm;
+			const regexpShebangs = /^#!.+?\r?\n/g;
 			for (const {
 				isFile,
 				pathRelative
 			} of fsSnapshotFixImports) {
-				if (!(isFile && !/^deps[\\\/]/.test(pathRelative) && !/^_dnt\..+?\.(?:d\.ts(?:\.map)?|js)$/.test(pathRelative) && (
-					pathRelative.endsWith(".d.ts") ||
-					pathRelative.endsWith(".js")
-				))) {
+				if (!(isFile && !/^deps[\\\/]/.test(pathRelative) && !/^_dnt\..+?\.(?:d\.ts(?:\.map)?|js)$/.test(pathRelative) && pathRelative.endsWith(".js"))) {
 					continue;
 				}
 				const pathRelativeRoot: string = joinPath(outputDirectory, pathRelative);
 				let context: string = await Deno.readTextFile(pathRelativeRoot);
 				let modified: boolean = false;
-				if (pathRelative.endsWith(".js") && regexpImportDNTPolyfills.test(pathRelative)) {
+				// Shebang should only have at most 1, but no need to care in here.
+				const shebang: string[] = Array.from(context.matchAll(regexpShebangs), (v: RegExpExecArray): string => {
+					return v[0];
+				});
+				// DNT polyfills should only have at most 1 after deduplicate, but no need to care in here, likely engine fault.
+				const dntPolyfills: Set<string> = new Set<string>(Array.from(context.matchAll(regexpImportDNTPolyfills), (v: RegExpExecArray): string => {
+					return v[0];
+				}));
+				// DNT shims should only have at most 1 after deduplicate, but no need to care in here, likely engine fault.
+				const dntShims: Set<string> = new Set<string>(Array.from(context.matchAll(regexpImportDNTShims), (v: RegExpExecArray): string => {
+					return v[0];
+				}));
+				if (
+					dntPolyfills.size > 0 ||
+					dntShims.size > 0
+				) {
 					modified = true;
-					context = context.replaceAll(regexpImportDNTPolyfills, "import \"./_dnt.polyfills.js\";");
+					context = `${shebang.join("")}${Array.from(dntPolyfills.values()).join("")}${Array.from(dntShims.values()).join("")}${context.replaceAll(regexpShebangs, "").replaceAll(regexpImportDNTPolyfills, "").replaceAll(regexpImportDNTShims, "")}`;
 				}
 				if (modified) {
 					await Deno.writeTextFile(pathRelativeRoot, context, { create: false });
