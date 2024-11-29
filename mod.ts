@@ -1,7 +1,6 @@
 import { copy as copyFS } from "jsr:@std/fs@^1.0.6/copy";
 import { emptyDir as emptyFSDir } from "jsr:@std/fs@^1.0.6/empty-dir";
 import { ensureDir as ensureFSDir } from "jsr:@std/fs@^1.0.6/ensure-dir";
-import { exists as isFSExists } from "jsr:@std/fs@^1.0.6/exists";
 import { dirname as getPathDirname } from "jsr:@std/path@^1.0.8/dirname";
 import { join as joinPath } from "jsr:@std/path@^1.0.8/join";
 import {
@@ -239,11 +238,12 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 			"src",
 			"types"
 		]) {
-			const subpathRelative: string = joinPath(outputDirectory, subpath);
-			if (await isFSExists(subpathRelative)) {
-				await Deno.remove(subpathRelative, { recursive: true }).catch((reason: unknown): void => {
-					console.error(reason);
-				});
+			try {
+				await Deno.remove(joinPath(outputDirectory, subpath), { recursive: true });
+			} catch (error) {
+				if (!(error instanceof Deno.errors.NotFound)) {
+					console.error(error);
+				}
 			}
 		}
 		// Snapshot original files path for move files.
