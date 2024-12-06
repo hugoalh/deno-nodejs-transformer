@@ -1,3 +1,7 @@
+import {
+	walk,
+	type FSWalkEntry
+} from "https://raw.githubusercontent.com/hugoalh/fs-es/v0.1.0/walk.ts";
 import { copy as copyFS } from "jsr:@std/fs@^1.0.6/copy";
 import { emptyDir as emptyFSDir } from "jsr:@std/fs@^1.0.6/empty-dir";
 import { ensureDir as ensureFSDir } from "jsr:@std/fs@^1.0.6/ensure-dir";
@@ -7,10 +11,6 @@ import {
 	resolveEntrypoints,
 	type DenoNodeJSTransformerEntrypoint
 } from "./_entrypoints.ts";
-import {
-	walkFS,
-	type FSWalkEntry
-} from "./_fswalk.ts";
 import {
 	refactorMetadata,
 	type Metadata,
@@ -248,7 +248,7 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 		}
 		// Snapshot original files path for move files.
 		const outputDirectoryESM: string = joinPath(outputDirectory, "esm");
-		const fsSnapshotESM: FSWalkEntry[] = await Array.fromAsync(walkFS(outputDirectoryESM));
+		const fsSnapshotESM: FSWalkEntry[] = await Array.fromAsync(await walk(outputDirectoryESM));
 		const renameToken: string = ((): string => {
 			let token: string;
 			do {
@@ -272,7 +272,7 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 			await Deno.rename(joinPath(outputDirectoryESM, pathRelative), joinPath(pathNewDir, `${renameToken}${name}`));
 		}
 		// Snapshot files path again for rename moved files.
-		const fsSnapshotRename: FSWalkEntry[] = await Array.fromAsync(walkFS(outputDirectory));
+		const fsSnapshotRename: FSWalkEntry[] = await Array.fromAsync(await walk(outputDirectory));
 		for (const {
 			isFile,
 			name,
@@ -284,7 +284,7 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 			await Deno.rename(joinPath(outputDirectory, pathRelative), joinPath(outputDirectory, getPathDirname(pathRelative), name.slice(renameToken.length)));
 		}
 		if (fixInjectedImports) {
-			const fsSnapshotFixImports: FSWalkEntry[] = await Array.fromAsync(walkFS(outputDirectory));
+			const fsSnapshotFixImports: FSWalkEntry[] = await Array.fromAsync(await walk(outputDirectory));
 			const regexpImportDNTPolyfills = /^import ".+?\/_dnt\.polyfills\.js";\r?\n/gm;
 			const regexpImportDNTShims = /^import .*?dntShim from ".+?\/_dnt\.shims\.js";\r?\n/gm;
 			const regexpShebangs = /^#!.+?\r?\n/g;

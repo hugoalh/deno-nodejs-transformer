@@ -1,5 +1,5 @@
+import { sortCollectionByKeys } from "https://raw.githubusercontent.com/hugoalh/sort-es/v0.1.1/collection.ts";
 import { partition } from "jsr:@std/collections@^1.0.9/partition";
-import { sortObject } from "./_sort_object.ts";
 import type { EntryPoint } from "./deps.ts";
 export interface DenoNodeJSTransformerEntrypoint {
 	/**
@@ -93,20 +93,17 @@ export function resolveEntrypoints(entrypoints: DenoNodeJSTransformerEntrypoint[
 	});
 	const entrypointsMain: DenoNodeJSTransformerEntrypointFmt | undefined = (entrypointsMainIndex < 0) ? undefined : entrypointsExports[entrypointsMainIndex];
 	const entrypointsRest: DenoNodeJSTransformerEntrypointFmt[] = (entrypointsMainIndex < 0) ? entrypointsExports : entrypointsExports.toSpliced(entrypointsMainIndex, 1);
-	let entrypointsMetadataExports: MetadataEntrypoints["exports"] = (entrypointsRest.length > 0) ? sortObject(Object.fromEntries(entrypointsRest.map(({
+	let entrypointsMetadataExports: MetadataEntrypoints["exports"] = (entrypointsRest.length > 0) ? sortCollectionByKeys(Object.fromEntries(entrypointsRest.map(({
 		name,
 		pathDeclaration,
 		pathScript
 	}: DenoNodeJSTransformerEntrypointFmt) => {
-		return [
-			name,
-			{
-				import: {
-					types: pathDeclaration,
-					default: pathScript
-				}
+		return [name, {
+			import: {
+				types: pathDeclaration,
+				default: pathScript
 			}
-		];
+		}];
 	}))) : undefined;
 	if (typeof entrypointsMain !== "undefined") {
 		entrypointsMetadataExports ??= {};
@@ -130,7 +127,7 @@ export function resolveEntrypoints(entrypoints: DenoNodeJSTransformerEntrypoint[
 			};
 		}),
 		metadata: {
-			bin: (entrypointsBin.length > 0) ? sortObject(Object.fromEntries(entrypointsBin.map(({
+			bin: (entrypointsBin.length > 0) ? sortCollectionByKeys(Object.fromEntries(entrypointsBin.map(({
 				name,
 				pathScript
 			}: DenoNodeJSTransformerEntrypointFmt): [string, string] => {

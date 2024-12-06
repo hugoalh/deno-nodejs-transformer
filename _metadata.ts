@@ -1,5 +1,5 @@
+import { sortCollectionByKeys } from "https://raw.githubusercontent.com/hugoalh/sort-es/v0.1.1/collection.ts";
 import type { MetadataEntrypoints } from "./_entrypoints.ts";
-import { sortObject } from "./_sort_object.ts";
 export interface MetadataBugs {
 	email?: string;
 	url?: string;
@@ -158,9 +158,9 @@ export async function refactorMetadata({
 	metadataPath
 }: RefactorMetadataParameters): Promise<void> {
 	const metadata = JSON.parse(await Deno.readTextFile(metadataPath));
-	await Deno.writeTextFile(metadataPath, JSON.stringify(sortObject({
+	await Deno.writeTextFile(metadataPath, JSON.stringify(sortCollectionByKeys({
 		...metadata,
 		...entrypoints,
 		type: "module"
-	}, { orderSpecifyKeys: metadataKeysSort }), undefined, metadataIndentation));
+	}, { specials: metadataKeysSort }), undefined, metadataIndentation));
 }
