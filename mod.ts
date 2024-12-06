@@ -1,12 +1,12 @@
-import {
-	walk,
-	type FSWalkEntry
-} from "https://raw.githubusercontent.com/hugoalh/fs-es/v0.1.0/walk.ts";
 import { copy as copyFS } from "jsr:@std/fs@^1.0.6/copy";
 import { emptyDir as emptyFSDir } from "jsr:@std/fs@^1.0.6/empty-dir";
 import { ensureDir as ensureFSDir } from "jsr:@std/fs@^1.0.6/ensure-dir";
 import { dirname as getPathDirname } from "jsr:@std/path@^1.0.8/dirname";
 import { join as joinPath } from "jsr:@std/path@^1.0.8/join";
+import {
+	walk,
+	type FSWalkEntry
+} from "https://raw.githubusercontent.com/hugoalh/fs-es/v0.1.0/walk.ts";
 import {
 	resolveEntrypoints,
 	type DenoNodeJSTransformerEntrypoint

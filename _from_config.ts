@@ -1,12 +1,12 @@
 import {
+	parse as parseJSONC,
+	type JsonValue
+} from "jsr:@std/jsonc@^1.0.1/parse";
+import {
 	isJSONObject,
 	type JSONObject,
 	type JSONValue
 } from "https://raw.githubusercontent.com/hugoalh/is-json-es/v1.0.4/mod.ts";
-import {
-	parse as parseJSONC,
-	type JsonValue
-} from "jsr:@std/jsonc@^1.0.1/parse";
 import type { DenoNodeJSTransformerEntrypoint } from "./_entrypoints.ts";
 export class MetadataFromConfig {
 	get [Symbol.toStringTag](): string {
