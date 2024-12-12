@@ -10,6 +10,11 @@
 		"https://raw.githubusercontent.com/hugoalh/is-json-es/v1.0.4/mod.ts": "jsr:@hugoalh/is-json@^1.0.4",
 		"https://raw.githubusercontent.com/hugoalh/sort-es/v0.1.1/collection.ts": "jsr:@hugoalh/sort@^0.1.1/collection"
 	},
+	"lint": {
+		"exclude": [
+			"vendor/**"
+		]
+	},
 	"publish": {
 		"exclude": [
 			"**/*_bench.ts",
