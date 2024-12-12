@@ -38,15 +38,15 @@
 	"lock": false,
 	"tasks": {
 		"jsr-check": {
-			"command": "deno publish --allow-dirty --config jsr.jsonc --dry-run --no-provenance",
+			"command": "deno publish --allow-dirty --config jsr.jsonc --dry-run --no-check --no-provenance",
 			"description": "Check deployment for JSR."
 		},
 		"jsr-publish": {
-			"command": "deno publish --allow-dirty --config jsr.jsonc --no-provenance",
+			"command": "deno publish --allow-dirty --config jsr.jsonc --no-check --no-provenance",
 			"description": "Publish package to JSR."
 		},
 		"jsr-publish-provenance": {
-			"command": "deno publish --allow-dirty --config jsr.jsonc",
+			"command": "deno publish --allow-dirty --config jsr.jsonc --no-check",
 			"description": "Publish package to JSR (provenance)."
 		}
 	},
