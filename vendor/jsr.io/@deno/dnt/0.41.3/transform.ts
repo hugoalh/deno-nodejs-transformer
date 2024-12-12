@@ -6,7 +6,7 @@
  * @module
  */
 
-import { transform as transformWASM } from "https://jsr.io/@deno/dnt/0.41.3/lib/pkg/dnt_wasm_bg.wasm";
+import { transform as transformWASM } from "./lib/pkg/dnt_wasm_bg.wasm";
 import type { ScriptTarget } from "./lib/types.ts";
 import { valueToUrl } from "./lib/utils.ts";
 
