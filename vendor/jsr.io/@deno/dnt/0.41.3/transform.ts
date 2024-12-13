@@ -6,7 +6,7 @@
  * @module
  */
 
-import { transform as transformWASM } from "https://jsr.io/@deno/dnt/0.41.3/lib/pkg/dnt_wasm_bg.wasm";
+import { instantiate } from "./lib/pkg/dnt_wasm.generated.js";
 import type { ScriptTarget } from "./lib/types.ts";
 import { valueToUrl } from "./lib/utils.ts";
 
@@ -129,7 +129,10 @@ export async function transform(
       ? undefined
       : valueToUrl(options.importMap),
   };
-  return Promise.resolve(transformWASM(newOptions as unknown as number) as unknown as TransformOutput);
+  const wasmFuncs = await instantiate({
+    url: options.internalWasmUrl ? new URL(options.internalWasmUrl) : undefined,
+  });
+  return wasmFuncs.transform(newOptions);
 }
 
 type SerializableMappedSpecifier = {
