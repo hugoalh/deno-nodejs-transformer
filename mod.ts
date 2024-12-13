@@ -219,7 +219,6 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 			esModule: true,
 			filterDiagnostic,
 			importMap: importsMap,
-			internalWasmUrl: "https://jsr.io/@deno/dnt/0.41.3/lib/pkg/dnt_wasm_bg.wasm",
 			mappings,
 			outDir: outputDirectory,
 			package: metadata,
