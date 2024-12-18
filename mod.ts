@@ -299,29 +299,28 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 					continue;
 				}
 				const pathRelativeRoot: string = joinPath(outputDirectory, pathRelative);
-				let context: string = await Deno.readTextFile(pathRelativeRoot);
-				let modified: boolean = false;
+				const contextOriginal: string = await Deno.readTextFile(pathRelativeRoot);
+				let contextModified: string = structuredClone(contextOriginal);
 				// Shebang should only have at most 1, but no need to care in here.
-				const shebang: string[] = Array.from(context.matchAll(regexpShebangs), (v: RegExpExecArray): string => {
+				const shebang: string[] = Array.from(contextModified.matchAll(regexpShebangs), (v: RegExpExecArray): string => {
 					return v[0];
 				});
 				// DNT polyfills should only have at most 1 after deduplicate, but no need to care in here, likely engine fault.
-				const dntPolyfills: Set<string> = new Set<string>(Array.from(context.matchAll(regexpImportDNTPolyfills), (v: RegExpExecArray): string => {
+				const dntPolyfills: Set<string> = new Set<string>(Array.from(contextModified.matchAll(regexpImportDNTPolyfills), (v: RegExpExecArray): string => {
 					return v[0];
 				}));
 				// DNT shims should only have at most 1 after deduplicate, but no need to care in here, likely engine fault.
-				const dntShims: Set<string> = new Set<string>(Array.from(context.matchAll(regexpImportDNTShims), (v: RegExpExecArray): string => {
+				const dntShims: Set<string> = new Set<string>(Array.from(contextModified.matchAll(regexpImportDNTShims), (v: RegExpExecArray): string => {
 					return v[0];
 				}));
 				if (
 					dntPolyfills.size > 0 ||
 					dntShims.size > 0
 				) {
-					modified = true;
-					context = `${shebang.join("")}${Array.from(dntPolyfills.values()).join("")}${Array.from(dntShims.values()).join("")}${context.replaceAll(regexpShebangs, "").replaceAll(regexpImportDNTPolyfills, "").replaceAll(regexpImportDNTShims, "")}`;
+					contextModified = `${shebang.join("")}${Array.from(dntPolyfills.values()).join("")}${Array.from(dntShims.values()).join("")}${contextModified.replaceAll(regexpShebangs, "").replaceAll(regexpImportDNTPolyfills, "").replaceAll(regexpImportDNTShims, "")}`;
 				}
-				if (modified) {
-					await Deno.writeTextFile(pathRelativeRoot, context, { create: false });
+				if (contextModified !== contextOriginal) {
+					await Deno.writeTextFile(pathRelativeRoot, contextModified, { create: false });
 				}
 			}
 		}
