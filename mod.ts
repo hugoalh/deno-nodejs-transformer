@@ -6,7 +6,7 @@ import { join as joinPath } from "jsr:@std/path@^1.0.8/join";
 import {
 	walk,
 	type FSWalkEntry
-} from "https://raw.githubusercontent.com/hugoalh/fs-es/v0.1.0/walk.ts";
+} from "https://raw.githubusercontent.com/hugoalh/fs-es/v0.3.1/walk.ts";
 import {
 	resolveEntrypoints,
 	type DenoNodeJSTransformerEntrypoint

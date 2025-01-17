@@ -1,4 +1,4 @@
-import { createCache } from "jsr:@deno/cache-dir@^0.14.0";
+import { createCache } from "jsr:@deno/cache-dir@^0.16.0";
 
 const fileFetcher = createCache();
 
