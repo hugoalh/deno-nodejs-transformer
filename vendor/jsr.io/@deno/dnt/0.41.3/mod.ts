@@ -2,7 +2,7 @@
 
 import * as colors from "jsr:/@std/fmt@1/colors";
 import * as path from "jsr:@std/path@1";
-import { createProjectSync, ts } from "jsr:@ts-morph/bootstrap@^0.26.0";
+import { createProjectSync, ts } from "jsr:@ts-morph/bootstrap@^0.25.0";
 import {
   getCompilerLibOption,
   getCompilerScriptTarget,
