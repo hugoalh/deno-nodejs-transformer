@@ -88,6 +88,7 @@ export async function runTestDefinitions(
       options.process.stdout.write("\n\n");
       options.process.stdout.write(failure.name + "\n");
       options.process.stdout.write(
+        //@ts-ignore I have no idea why have this error!
         indentText((failure.err?.stack ?? failure.err).toString(), 1),
       );
     }
