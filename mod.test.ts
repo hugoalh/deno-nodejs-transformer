@@ -19,7 +19,7 @@ Deno.test("Main", {
 		generateDeclarationMap: true,
 		metadata: {
 			name: "@hugoalh/deno-nodejs-transformer-test",
-			version: "0.6.0",
+			version: "0.7.0",
 			description: "Demo of Deno NodeJS Transformer.",
 			keywords: [
 				"dnt",

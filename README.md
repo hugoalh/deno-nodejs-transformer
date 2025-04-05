@@ -7,7 +7,7 @@
 
 A Deno module for transform Deno package to NodeJS package.
 
-This is a modified edition of the JSR package [`dnt`](https://jsr.io/@deno/dnt) which aim for:
+This module is a modified edition of the JSR package [`dnt`](https://jsr.io/@deno/dnt) which aim for:
 
 - Always force with ModuleJS
 - Hotfix engine issues
@@ -20,7 +20,7 @@ This is a modified edition of the JSR package [`dnt`](https://jsr.io/@deno/dnt) 
 
 |  | **Remote** | **JSR** |
 |:--|:--|:--|
-| **[Deno](https://deno.land/)** >= v2.1.0 | ✔️ | ✔️ |
+| **[Deno](https://deno.land/)** >= v2.2.5 | ✔️ | ✔️ |
 
 > [!NOTE]
 > - It is possible to use this module in other methods/ways which not listed in here, however those methods/ways are not officially supported, and should beware maybe cause security issues.
@@ -111,7 +111,7 @@ This is a modified edition of the JSR package [`dnt`](https://jsr.io/@deno/dnt) 
     }],
     metadata: {
       name: "@hugoalh/deno-nodejs-transformer-test",
-      version: "0.6.0",
+      version: "0.7.0",
       description: "Demo of Deno NodeJS Transformer.",
       keywords: [
         "dnt",

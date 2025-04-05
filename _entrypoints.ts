@@ -1,5 +1,5 @@
-import { partition } from "jsr:@std/collections@^1.0.9/partition";
-import { sortCollectionByKeys } from "https://raw.githubusercontent.com/hugoalh/sort-es/v0.1.1/collection.ts";
+import { partition } from "jsr:@std/collections@^1.0.10/partition";
+import { sortCollectionByKeys } from "https://raw.githubusercontent.com/hugoalh/sort-es/v0.2.0/collection.ts";
 import type { EntryPoint } from "./deps.ts";
 export interface DenoNodeJSTransformerEntrypoint {
 	/**

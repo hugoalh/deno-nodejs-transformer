@@ -1,12 +1,11 @@
-import { copy as copyFS } from "jsr:@std/fs@^1.0.6/copy";
-import { emptyDir as emptyFSDir } from "jsr:@std/fs@^1.0.6/empty-dir";
-import { ensureDir as ensureFSDir } from "jsr:@std/fs@^1.0.6/ensure-dir";
-import { dirname as getPathDirname } from "jsr:@std/path@^1.0.8/dirname";
+import { copy as copyFS } from "jsr:@std/fs@^1.0.15/copy";
+import { emptyDir as emptyFSDir } from "jsr:@std/fs@^1.0.15/empty-dir";
+import { ensureDir as ensureFSDir } from "jsr:@std/fs@^1.0.15/ensure-dir";
 import { join as joinPath } from "jsr:@std/path@^1.0.8/join";
 import {
 	walk,
 	type FSWalkEntry
-} from "https://raw.githubusercontent.com/hugoalh/fs-es/v0.1.0/walk.ts";
+} from "https://raw.githubusercontent.com/hugoalh/fs-es/v0.4.0/walk.ts";
 import {
 	resolveEntrypoints,
 	type DenoNodeJSTransformerEntrypoint
@@ -230,9 +229,6 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 			typeCheck: false
 		});
 		for (const subpath of [
-			".npmignore",
-			"esm/package.json",
-			"esm/package-lock.json",
 			"package-lock.json",
 			"script",
 			"src",
@@ -245,43 +241,6 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 					console.error(error);
 				}
 			}
-		}
-		// Snapshot original files path for move files.
-		const outputDirectoryESM: string = joinPath(outputDirectory, "esm");
-		const fsSnapshotESM: FSWalkEntry[] = await Array.fromAsync(await walk(outputDirectoryESM));
-		const renameToken: string = ((): string => {
-			let token: string;
-			do {
-				token = `${crypto.randomUUID().slice(-12)}_`;
-			} while (fsSnapshotESM.some(({ name }: FSWalkEntry): boolean => {
-				return name.startsWith(token);
-			}));
-			return token;
-		})();
-		for (const {
-			isFile,
-			name,
-			pathRelative
-		} of fsSnapshotESM) {
-			if (!isFile) {
-				continue;
-			}
-			// Move files with rename to prevent overwrite original files which not yet moved.
-			const pathNewDir: string = joinPath(outputDirectory, getPathDirname(pathRelative));
-			await ensureFSDir(pathNewDir);
-			await Deno.rename(joinPath(outputDirectoryESM, pathRelative), joinPath(pathNewDir, `${renameToken}${name}`));
-		}
-		// Snapshot files path again for rename moved files.
-		const fsSnapshotRename: FSWalkEntry[] = await Array.fromAsync(await walk(outputDirectory));
-		for (const {
-			isFile,
-			name,
-			pathRelative
-		} of fsSnapshotRename) {
-			if (!(isFile && name.startsWith(renameToken))) {
-				continue;
-			}
-			await Deno.rename(joinPath(outputDirectory, pathRelative), joinPath(outputDirectory, getPathDirname(pathRelative), name.slice(renameToken.length)));
 		}
 		if (fixInjectedImports) {
 			const fsSnapshotFixImports: FSWalkEntry[] = await Array.fromAsync(await walk(outputDirectory));

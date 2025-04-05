@@ -1,14 +1,14 @@
 {
 	"$schema": "https://deno.land/x/deno/cli/schemas/config-file.v1.json",
 	"name": "@hugoalh/deno-nodejs-transformer",
-	"version": "0.6.1",
+	"version": "0.7.0",
 	"exports": {
 		".": "./mod.ts"
 	},
 	"imports": {
-		"https://raw.githubusercontent.com/hugoalh/fs-es/v0.1.0/walk.ts": "jsr:@hugoalh/fs@^0.1.0/walk",
+		"https://raw.githubusercontent.com/hugoalh/fs-es/v0.4.0/walk.ts": "jsr:@hugoalh/fs@^0.4.0/walk",
 		"https://raw.githubusercontent.com/hugoalh/is-json-es/v1.0.4/mod.ts": "jsr:@hugoalh/is-json@^1.0.4",
-		"https://raw.githubusercontent.com/hugoalh/sort-es/v0.1.1/collection.ts": "jsr:@hugoalh/sort@^0.1.1/collection"
+		"https://raw.githubusercontent.com/hugoalh/sort-es/v0.2.0/collection.ts": "jsr:@hugoalh/sort@^0.2.0/collection"
 	},
 	"publish": {
 		"exclude": [
@@ -24,8 +24,11 @@
 			"**/bench.tsx",
 			"**/test.ts",
 			"**/test.tsx",
+			"_test/**",
 			"npm/**",
-			".dnt.ts"
+			"test/**",
+			".dnt.ts",
+			".*.lint.ts"
 		],
 		"include": [
 			"**/*.json",

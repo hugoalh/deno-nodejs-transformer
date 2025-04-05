@@ -6,12 +6,12 @@ import {
 	type PackageJson,
 	type ShimOptions,
 	type SourceMapOptions
-} from "jsr:@deno/dnt@0.41.3";
+} from "./_dnt/mod.ts";
 import type { 
 	Shim,
 	SpecifierMappings,
 	TransformOutput
-} from "jsr:@deno/dnt@0.41.3/transform";
+} from "./_dnt/transform.ts";
 export {
 	build,
 	type BuildOptions,
