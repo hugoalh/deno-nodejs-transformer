@@ -224,15 +224,12 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 			scriptModule: false,
 			shims: resolveDNTShimsOptions(shims),
 			skipNpmInstall: true,
-			skipSourceOutput: false,
+			skipSourceOutput: true,
 			test: false,
 			typeCheck: false
 		});
 		for (const subpath of [
-			"package-lock.json",
-			"script",
-			"src",
-			"types"
+			"package-lock.json"
 		]) {
 			try {
 				await Deno.remove(joinPath(outputDirectory, subpath), { recursive: true });
