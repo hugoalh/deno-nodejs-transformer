@@ -6,7 +6,7 @@ const fileFetcher = createCache();
 
 export function fetch_specifier(specifier, cacheSettingVal, checksum) {
 	return fileFetcher.load(
-				new URL(specifier),
+		new URL(specifier),
 		getCacheSetting(cacheSettingVal),
 		checksum,
 	);
