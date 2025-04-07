@@ -37,7 +37,7 @@ export interface DenoNodeJSTransformerOptions {
 	/**
 	 * Copy assets after the build, by relative path under the {@linkcode root}.
 	 */
-	copyAssets?: (string | DenoNodeJSTransformerCopyAssetsOptions)[];
+	copyAssets?: readonly (string | DenoNodeJSTransformerCopyAssetsOptions)[];
 	/**
 	 * Whether to enable experimental support for emit type metadata for decorators which works with the NPM package {@linkcode https://www.npmjs.com/package/reflect-metadata reflect-metadata}.
 	 * @default {false}
@@ -46,7 +46,7 @@ export interface DenoNodeJSTransformerOptions {
 	/**
 	 * Entrypoints of the package.
 	 */
-	entrypoints: DenoNodeJSTransformerEntrypoint[];
+	entrypoints: readonly DenoNodeJSTransformerEntrypoint[];
 	/**
 	 * Filter out diagnostics that want to ignore during type check and emit.
 	 * 
@@ -75,7 +75,7 @@ export interface DenoNodeJSTransformerOptions {
 	/**
 	 * Default set of library options to use. See https://www.typescriptlang.org/tsconfig/#lib.
 	 */
-	lib?: LibName[];
+	lib?: readonly LibName[];
 	/**
 	 * Whether to perform type check of declaration files (those in dependencies).
 	 * @default {false}
@@ -240,7 +240,7 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 			}
 		}
 		if (fixInjectedImports) {
-			const fsSnapshotFixImports: FSWalkEntry[] = await Array.fromAsync(await walk(outputDirectory));
+			const fsSnapshotFixImports: readonly FSWalkEntry[] = await Array.fromAsync(await walk(outputDirectory));
 			const regexpImportDNTPolyfills = /^import ".+?\/_dnt\.polyfills\.js";\r?\n/gm;
 			const regexpImportDNTShims = /^import .*?dntShim from ".+?\/_dnt\.shims\.js";\r?\n/gm;
 			const regexpShebangs = /^#!.+?\r?\n/g;
@@ -258,7 +258,7 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 				const contextOriginal: string = await Deno.readTextFile(pathRelativeRoot);
 				let contextModified: string = structuredClone(contextOriginal);
 				// Shebang should only have at most 1, but no need to care in here.
-				const shebang: string[] = Array.from(contextModified.matchAll(regexpShebangs), (v: RegExpExecArray): string => {
+				const shebang: readonly string[] = Array.from(contextModified.matchAll(regexpShebangs), (v: RegExpExecArray): string => {
 					return v[0];
 				});
 				// DNT polyfills should only have at most 1 after deduplicate, but no need to care in here, likely engine fault.

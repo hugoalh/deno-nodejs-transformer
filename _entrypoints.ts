@@ -42,14 +42,14 @@ export interface MetadataEntrypoints {
 	};
 	types?: string;
 }
-export function resolveEntrypoints(entrypoints: DenoNodeJSTransformerEntrypoint[], declaration: boolean): {
+export function resolveEntrypoints(entrypoints: readonly DenoNodeJSTransformerEntrypoint[], declaration: boolean): {
 	dnt: EntryPoint[];
 	metadata: MetadataEntrypoints;
 } {
 	if (entrypoints.length === 0) {
 		throw new ReferenceError(`Entrypoints are not defined!`);
 	}
-	const entrypointsFmt: DenoNodeJSTransformerEntrypointFmt[] = entrypoints.map(({
+	const entrypointsFmt: readonly DenoNodeJSTransformerEntrypointFmt[] = entrypoints.map(({
 		executable = false,
 		name,
 		path
@@ -71,7 +71,7 @@ export function resolveEntrypoints(entrypoints: DenoNodeJSTransformerEntrypoint[
 	]: [DenoNodeJSTransformerEntrypointFmt[], DenoNodeJSTransformerEntrypointFmt[]] = partition(entrypointsFmt, ({ executable }: DenoNodeJSTransformerEntrypointFmt): boolean => {
 		return executable;
 	});
-	const entrypointsBinName: string[] = entrypointsBin.map(({ name }: DenoNodeJSTransformerEntrypointFmt): string => {
+	const entrypointsBinName: readonly string[] = entrypointsBin.map(({ name }: DenoNodeJSTransformerEntrypointFmt): string => {
 		return name;
 	});
 	if (entrypointsBinName.some((name: string): boolean => {
@@ -82,7 +82,7 @@ export function resolveEntrypoints(entrypoints: DenoNodeJSTransformerEntrypoint[
 	if (entrypointsBinName.length !== new Set(entrypointsBinName).size) {
 		throw new Error("Found duplicated executables name!");
 	}
-	const entrypointsExportsName: string[] = entrypointsExports.map(({ name }: DenoNodeJSTransformerEntrypointFmt): string => {
+	const entrypointsExportsName: readonly string[] = entrypointsExports.map(({ name }: DenoNodeJSTransformerEntrypointFmt): string => {
 		return name;
 	});
 	if (entrypointsExportsName.length !== new Set(entrypointsExportsName).size) {
@@ -92,7 +92,7 @@ export function resolveEntrypoints(entrypoints: DenoNodeJSTransformerEntrypoint[
 		return (name === ".");
 	});
 	const entrypointsMain: DenoNodeJSTransformerEntrypointFmt | undefined = (entrypointsMainIndex < 0) ? undefined : entrypointsExports[entrypointsMainIndex];
-	const entrypointsRest: DenoNodeJSTransformerEntrypointFmt[] = (entrypointsMainIndex < 0) ? entrypointsExports : entrypointsExports.toSpliced(entrypointsMainIndex, 1);
+	const entrypointsRest: readonly DenoNodeJSTransformerEntrypointFmt[] = (entrypointsMainIndex < 0) ? entrypointsExports : entrypointsExports.toSpliced(entrypointsMainIndex, 1);
 	let entrypointsMetadataExports: MetadataEntrypoints["exports"] = (entrypointsRest.length > 0) ? sortCollectionByKeys(Object.fromEntries(entrypointsRest.map(({
 		name,
 		pathDeclaration,
@@ -130,7 +130,7 @@ export function resolveEntrypoints(entrypoints: DenoNodeJSTransformerEntrypoint[
 			bin: (entrypointsBin.length > 0) ? sortCollectionByKeys(Object.fromEntries(entrypointsBin.map(({
 				name,
 				pathScript
-			}: DenoNodeJSTransformerEntrypointFmt): [string, string] => {
+			}: DenoNodeJSTransformerEntrypointFmt): readonly [string, string] => {
 				return [name, pathScript];
 			}))) : undefined,
 			main: entrypointsMain?.pathScript,

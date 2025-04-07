@@ -162,7 +162,7 @@ export interface BuildOptions {
 		 */
 		inlineSources?: boolean;
 		/** Default set of library options to use. See https://www.typescriptlang.org/tsconfig/#lib */
-		lib?: LibName[];
+		lib?: readonly LibName[];
 		/**
 		 * Skip type checking of declaration files (those in dependencies).
 		 * @default true

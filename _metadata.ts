@@ -148,7 +148,7 @@ const metadataKeysDefaultSort: string[] = [
 export interface RefactorMetadataParameters {
 	entrypoints: MetadataEntrypoints;
 	metadataIndentation?: number | string;
-	metadataKeysSort?: string[];
+	metadataKeysSort?: readonly string[];
 	metadataPath: string;
 }
 export async function refactorMetadata({

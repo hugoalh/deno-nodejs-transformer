@@ -164,7 +164,7 @@ export function getCompilerLibOption(target: ScriptTarget): LibName[] {
 	}
 }
 
-export function libNamesToCompilerOption(names: LibName[]) {
+export function libNamesToCompilerOption(names: readonly LibName[]) {
 	const libFileNames: string[] = [];
 	const libMap = (ts as any).libMap as Map<string, string>;
 	for (const name of names) {
