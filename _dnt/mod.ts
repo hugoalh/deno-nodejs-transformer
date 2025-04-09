@@ -1,7 +1,7 @@
 //deno-lint-ignore-file
 // Copyright 2018-2024 the Deno authors. MIT license.
 
-import * as colors from "jsr:/@std/fmt@^1.0.6/colors";
+import * as colors from "jsr:@std/fmt@^1.0.6/colors";
 import * as path from "jsr:@std/path@^1.0.8";
 import { createProjectSync, ts } from "jsr:@ts-morph/bootstrap@^0.26.1";
 import {
@@ -28,7 +28,7 @@ import * as compilerTransforms from "./lib/compiler_transforms.ts";
 import { getPackageJson } from "./lib/package_json.ts";
 // import { getTestRunnerCode } from "./lib/test_runner/get_test_runner_code.ts";
 
-export { emptyDir } from "jsr:/@std/fs@^1.0.15/empty-dir";
+export { emptyDir } from "jsr:@std/fs@^1.0.15/empty-dir";
 export type { PackageJson } from "./lib/types.ts";
 export type { LibName, SourceMapOptions } from "./lib/compiler.ts";
 export type { ShimOptions } from "./lib/shims.ts";

@@ -1,7 +1,7 @@
 //deno-lint-ignore-file
 // Copyright 2018-2024 the Deno authors. MIT license.
 
-import { expandGlob } from "jsr:/@std/fs@^1.0.15/expand-glob";
+import { expandGlob } from "jsr:@std/fs@^1.0.15/expand-glob";
 import * as path from "jsr:@std/path@^1.0.8";
 
 /** Gets the files found in the provided root dir path based on the glob. */
