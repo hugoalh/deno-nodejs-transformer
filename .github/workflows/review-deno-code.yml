@@ -15,19 +15,19 @@ on:
   workflow_dispatch:
 jobs:
   main:
-    name: "${{matrix.runon}}"
+    name: "${{matrix.run_on}}"
     permissions:
       contents: "read"
     strategy:
       matrix:
-        runon:
+        run_on:
           - "macos-latest"
           - "ubuntu-latest"
           - "windows-latest"
       fail-fast: false
-    runs-on: "${{matrix.runon}}"
+    runs-on: "${{matrix.run_on}}"
     env:
-      CDV_RUN_LITE: "${{matrix.runon != 'ubuntu-latest'}}"
+      CDV_RUN_LITE: "${{matrix.run_on != 'ubuntu-latest'}}"
     steps:
       - name: "Checkout Repository"
         uses: "actions/checkout@v4"
