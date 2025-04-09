@@ -49,13 +49,13 @@ This module is a modified edition of the JSR package [`dnt`](https://jsr.io/@den
 
 ### 🛡️ Runtime Permissions
 
-- Environment Variable \[Deno: `env`\]
+- **Environment Variable (Deno: `env`):**
   - *Resources*
-- File System - Read \[Deno: `read`\]
+- **File System - Read (Deno: `read`):**
   - *Resources*
-- File System - Write \[Deno: `write`\]
+- **File System - Write (Deno: `write`):**
   - *Resources*
-- Network \[Deno: `net`\]
+- **Network (Deno: `net`):**
   - *Resources*
 
 ## 🧩 APIs
