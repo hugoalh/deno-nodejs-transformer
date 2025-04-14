@@ -36,10 +36,3 @@ jobs:
         continue-on-error: true
       - name: "Analyze Repository"
         uses: "github/codeql-action/analyze@v3"
-  skip:
-    if: "${{github.event_name == 'pull_request' && github.event.pull_request.head.repo.id == github.event.pull_request.base.repo.id}}"
-    permissions: {}
-    runs-on: "ubuntu-latest"
-    steps:
-      - run: |-
-          sleep 1
