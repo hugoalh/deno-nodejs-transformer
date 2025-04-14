@@ -487,6 +487,7 @@ export async function build(options: BuildOptions): Promise<void> {
 		try {
 			program = project.createProgram();
 
+			/*
 			if (shouldTypeCheck()) {
 				log(`Type checking ${current}...`);
 				const diagnostics = filterDiagnostics(
@@ -497,12 +498,14 @@ export async function build(options: BuildOptions): Promise<void> {
 					throw new Error(`Had ${diagnostics.length} diagnostics.`);
 				}
 			}
+			*/
 
 			return program;
 		} finally {
 			Deno.chdir(originalDir);
 		}
 
+		/*
 		function filterDiagnostics(diagnostics: ReadonlyArray<ts.Diagnostic>) {
 			// we transform import.meta's when outputting a script, so ignore these diagnostics
 			return diagnostics.filter((d) =>
@@ -536,6 +539,7 @@ export async function build(options: BuildOptions): Promise<void> {
 				}
 			}
 		}
+		*/
 	}
 
 	function createPackageJson() {

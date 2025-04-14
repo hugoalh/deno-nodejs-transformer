@@ -2,10 +2,7 @@ import { copy as copyFS } from "jsr:@std/fs@^1.0.15/copy";
 import { emptyDir as emptyFSDir } from "jsr:@std/fs@^1.0.15/empty-dir";
 import { ensureDir as ensureFSDir } from "jsr:@std/fs@^1.0.15/ensure-dir";
 import { join as joinPath } from "jsr:@std/path@^1.0.8/join";
-import {
-	walk,
-	type FSWalkEntry
-} from "https://raw.githubusercontent.com/hugoalh/fs-es/v0.4.0/walk.ts";
+import { walk } from "https://raw.githubusercontent.com/hugoalh/fs-es/v0.4.0/walk.ts";
 import {
 	resolveEntrypoints,
 	type DenoNodeJSTransformerEntrypoint
@@ -240,20 +237,19 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 			}
 		}
 		if (fixInjectedImports) {
-			const fsSnapshotFixImports: readonly FSWalkEntry[] = await Array.fromAsync(await walk(outputDirectory));
 			const regexpImportDNTPolyfills = /^import ".+?\/_dnt\.polyfills\.js";\r?\n/gm;
 			const regexpImportDNTShims = /^import .*?dntShim from ".+?\/_dnt\.shims\.js";\r?\n/gm;
 			const regexpShebangs = /^#!.+?\r?\n/g;
-			for (const {
-				isFile,
-				pathRelative
-			} of fsSnapshotFixImports) {
-				if (!(isFile && !/^deps[\\\/]/.test(pathRelative) && !/^_dnt\..+?\.(?:d\.ts(?:\.map)?|js)$/.test(pathRelative) && (
-					pathRelative.endsWith(".d.ts") ||
-					pathRelative.endsWith(".js")
-				))) {
-					continue;
-				}
+			for await (const { pathRelative } of await walk(outputDirectory, {
+				extensions: [".d.ts", ".js"],
+				includeDirectories: false,
+				includeSymlinkDirectories: false,
+				includeSymlinkFiles: false,
+				skips: [
+					/^_dnt\..+?\.(?:d\.ts|js)$/,
+					/^deps[\\\/]/
+				]
+			})) {
 				const pathRelativeRoot: string = joinPath(outputDirectory, pathRelative);
 				const contextOriginal: string = await Deno.readTextFile(pathRelativeRoot);
 				let contextModified: string = structuredClone(contextOriginal);
