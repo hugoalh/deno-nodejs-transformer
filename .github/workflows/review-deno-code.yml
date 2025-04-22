@@ -75,7 +75,7 @@ jobs:
             )" -ErrorAction 'Stop'
           }
       - name: "Check Code"
-        if: "${{!cancelled() && steps.analyze.outcome == 'success' && env.CDV_RUN_LITE == 'false'}}"
+        if: "${{!cancelled() && steps.analyze.outcome == 'success'}}"
         run: |-
           deno check **/*
       - name: "Lint Code"
