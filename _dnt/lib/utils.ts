@@ -2,7 +2,8 @@
 // Copyright 2018-2024 the Deno authors. MIT license.
 
 import { expandGlob } from "jsr:@std/fs@^1.0.15/expand-glob";
-import * as path from "jsr:@std/path@^1.0.8";
+import { resolve as resolvePath } from "node:path";
+import { fileURLToPath as pathFromFileURL, pathToFileURL as pathToFileURL } from "node:url";
 
 /** Gets the files found in the provided root dir path based on the glob. */
 export async function glob(options: {
@@ -84,9 +85,9 @@ export async function runCommand(opts: {
 
 export function standardizePath(fileOrDirPath: string) {
 	if (fileOrDirPath.startsWith("file:")) {
-		return path.fromFileUrl(fileOrDirPath);
+		return pathFromFileURL(fileOrDirPath);
 	}
-	return path.resolve(fileOrDirPath);
+	return resolvePath(fileOrDirPath);
 }
 
 export function valueToUrl(value: string) {
@@ -101,7 +102,7 @@ export function valueToUrl(value: string) {
 	) {
 		return value;
 	} else {
-		return path.toFileUrl(path.resolve(value)).toString();
+		return pathToFileURL(resolvePath(value)).toString();
 	}
 }
 

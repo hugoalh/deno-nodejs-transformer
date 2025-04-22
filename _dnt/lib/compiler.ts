@@ -2,12 +2,12 @@
 // Copyright 2018-2024 the Deno authors. MIT license.
 
 import { ts } from "jsr:@ts-morph/bootstrap@^0.26.1";
-import * as path from "jsr:@std/path@^1.0.8";
+import { resolve as resolvePath } from "node:path";
 import type { ScriptTarget } from "./types.ts";
 
 export function outputDiagnostics(diagnostics: readonly ts.Diagnostic[]) {
 	const host: ts.FormatDiagnosticsHost = {
-		getCanonicalFileName: (fileName) => path.resolve(fileName),
+		getCanonicalFileName: (fileName) => resolvePath(fileName),
 		getCurrentDirectory: () => Deno.cwd(),
 		getNewLine: () => "\n",
 	};

@@ -2,7 +2,7 @@
 // Copyright 2018-2024 the Deno authors. MIT license.
 
 import * as colors from "jsr:@std/fmt@^1.0.6/colors";
-import * as path from "jsr:@std/path@^1.0.8";
+import { dirname as getPathDirname, join as joinPath } from "node:path";
 import { createProjectSync, ts } from "jsr:@ts-morph/bootstrap@^0.26.1";
 import {
 	getCompilerLibOption,
@@ -236,7 +236,7 @@ export async function build(options: BuildOptions): Promise<void> {
 
 	const createdDirectories = new Set<string>();
 	const writeFile = (filePath: string, fileText: string) => {
-		const dir = path.dirname(filePath);
+		const dir = getPathDirname(filePath);
 		if (!createdDirectories.has(dir)) {
 			Deno.mkdirSync(dir, { recursive: true });
 			createdDirectories.add(dir);
@@ -263,7 +263,7 @@ export async function build(options: BuildOptions): Promise<void> {
 	// const esmOutDir = path.join(options.outDir, "esm");
 	const esmOutDir = options.outDir;
 	// const scriptOutDir = path.join(options.outDir, "script");
-	const typesOutDir = path.join(options.outDir, "types");
+	const typesOutDir = joinPath(options.outDir, "types");
 	const compilerScriptTarget = getCompilerScriptTarget(scriptTarget);
 	const project = createProjectSync({
 		compilerOptions: {
@@ -326,7 +326,7 @@ export async function build(options: BuildOptions): Promise<void> {
 			...transformOutput.test.files,
 		]
 	) {
-		const outputFilePath = path.join(
+		const outputFilePath = joinPath(
 			options.outDir,
 			"src",
 			outputFile.filePath,
@@ -562,7 +562,7 @@ export async function build(options: BuildOptions): Promise<void> {
 			shims: options.shims,
 		});
 		writeFile(
-			path.join(options.outDir, "package.json"),
+			joinPath(options.outDir, "package.json"),
 			JSON.stringify(packageJsonObj, undefined, 2),
 		);
 	}
