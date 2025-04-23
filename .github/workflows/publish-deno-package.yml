@@ -44,7 +44,7 @@ jobs:
           Add-Content -LiteralPath $Env:GITHUB_OUTPUT -Value "jsr-publish=$(($Null -ine $Config.tasks.('jsr-publish')).ToString().ToLower())"
           Add-Content -LiteralPath $Env:GITHUB_OUTPUT -Value "jsr-publish-provenance=$(($Null -ine $Config.tasks.('jsr-publish-provenance')).ToString().ToLower())"
           Add-Content -LiteralPath $Env:GITHUB_OUTPUT -Value "npm-build=$(($Null -ine $Config.tasks.('npm-build')).ToString().ToLower())"
-          Add-Content -LiteralPath $Env:GITHUB_OUTPUT -Value "npm-root=$(Join-Path -Path $Env:GITHUB_WORKSPACE -ChildPath ($Config._behaviour.npm.root ?? 'npm'))"
+          Add-Content -LiteralPath $Env:GITHUB_OUTPUT -Value "npm-root=$(Join-Path -Path $Env:GITHUB_WORKSPACE -ChildPath ($Config._behaviour.npm.root ?? 'dist/npm'))"
       - name: "Build Repository"
         if: "${{steps.metadata.outputs.build == 'true'}}"
         run: |-

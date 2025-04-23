@@ -46,7 +46,7 @@ Deno.test("Main", {
 				access: "public"
 			}
 		},
-		outputDirectory: "npm",
+		outputDirectory: "dist/npm",
 		outputDirectoryPreEmpty: true
 	});
 });
