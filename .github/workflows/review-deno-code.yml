@@ -102,10 +102,13 @@ jobs:
       - name: "Test Code"
         id: "test"
         if: "${{!cancelled() && steps.analyze.outcome == 'success'}}"
-        shell: "pwsh"
         run: |-
           deno test --allow-all --coverage --no-prompt --permit-no-files --trace-leaks
-          If (Test-Path -LiteralPath '.\coverage' -PathType 'Container') {
+      - name: "List Test Code Coverage"
+        if: "${{!cancelled() && steps.analyze.outcome == 'success'}}"
+        shell: "pwsh"
+        run: |-
+          If ((Test-Path -LiteralPath '.\coverage' -PathType 'Container') -and (Get-ChildItem -LiteralPath '.\coverage' -File).Count -gt 0) {
             deno coverage
           }
       - name: "Benchmark Code"
