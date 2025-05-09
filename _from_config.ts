@@ -1,7 +1,7 @@
 import {
 	parse as parseJSONC,
 	type JsonValue
-} from "jsr:@std/jsonc@^1.0.1/parse";
+} from "jsr:@std/jsonc@^1.0.2/parse";
 import {
 	isJSONObject,
 	type JSONObject,
