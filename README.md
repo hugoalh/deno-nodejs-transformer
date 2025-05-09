@@ -18,7 +18,7 @@ This module is a modified edition of the JSR package [`dnt`](https://jsr.io/@den
 
 ### 🎯 Targets
 
-|  | **Remote** | **JSR** |
+| **Targets** | **Remote** | **JSR** |
 |:--|:--|:--|
 | **[Deno](https://deno.land/)** >= v2.2.5 | ✔️ | ✔️ |
 
