@@ -1,8 +1,9 @@
 //deno-lint-ignore-file
 // Copyright 2018-2024 the Deno authors. MIT license.
 
-import * as colors from "jsr:@std/fmt@^1.0.6/colors";
+import * as colors from "jsr:@std/fmt@^1.0.7/colors";
 import { dirname as getPathDirname, join as joinPath } from "node:path";
+import { pathToFileURL } from "node:url";
 import { createProjectSync, ts } from "jsr:@ts-morph/bootstrap@^0.26.1";
 import {
 	getCompilerLibOption,
@@ -28,7 +29,7 @@ import * as compilerTransforms from "./lib/compiler_transforms.ts";
 import { getPackageJson } from "./lib/package_json.ts";
 // import { getTestRunnerCode } from "./lib/test_runner/get_test_runner_code.ts";
 
-export { emptyDir } from "jsr:@std/fs@^1.0.15/empty-dir";
+export { emptyDir } from "jsr:@std/fs@^1.0.17/empty-dir";
 export type { PackageJson } from "./lib/types.ts";
 export type { LibName, SourceMapOptions } from "./lib/compiler.ts";
 export type { ShimOptions } from "./lib/shims.ts";
@@ -123,6 +124,8 @@ export interface BuildOptions {
 	mappings?: SpecifierMappings;
 	/** Package.json output. You may override dependencies and dev dependencies in here. */
 	package: PackageJson;
+	/** Path or url to a deno.json. */
+	configFile?: string;
 	/** Path or url to import map. */
 	importMap?: string;
 	/** Package manager used to install dependencies and run npm scripts.
@@ -172,6 +175,14 @@ export interface BuildOptions {
 		 * @default false
 		 */
 		emitDecoratorMetadata?: boolean;
+		/**
+		 * Enable experimental support for legacy experimental decorators.
+		 *
+		 * See more: https://www.typescriptlang.org/tsconfig#experimentalDecorators
+		 * @remarks This is false by default. To use the ts decorators, set this to `true`.
+		 * @default false
+		 */
+		experimentalDecorators?: boolean;
 		useUnknownInCatchVariables?: boolean;
 	};
 	/** Filter out diagnostics that you want to ignore during type checking and emitting.
@@ -208,6 +219,7 @@ export async function build(options: BuildOptions): Promise<void> {
 			? "inline"
 			: options.declaration ?? "inline",
 	};
+	const cwd = Deno.cwd();
 	const declarationMap = options.declarationMap ??
 		(!!options.declaration && !options.skipSourceOutput);
 	// const packageManager = options.packageManager ?? "npm";
@@ -290,7 +302,8 @@ export async function build(options: BuildOptions): Promise<void> {
 			esModuleInterop: false,
 			isolatedModules: true,
 			useDefineForClassFields: true,
-			experimentalDecorators: true,
+			experimentalDecorators: options.compilerOptions?.experimentalDecorators ??
+				false,
 			emitDecoratorMetadata: options.compilerOptions?.emitDecoratorMetadata ??
 				false,
 			jsx: ts.JsxEmit.React,
@@ -614,7 +627,9 @@ export async function build(options: BuildOptions): Promise<void> {
 			mappings: options.mappings,
 			target: scriptTarget,
 			importMap: options.importMap,
+			configFile: options.configFile,
 			internalWasmUrl: options.internalWasmUrl,
+			cwd: pathToFileURL(cwd).toString(),
 		});
 	}
 

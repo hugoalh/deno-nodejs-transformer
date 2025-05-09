@@ -1,9 +1,9 @@
 //deno-lint-ignore-file
 // Copyright 2018-2024 the Deno authors. MIT license.
 
-import { expandGlob } from "jsr:@std/fs@^1.0.15/expand-glob";
+import { expandGlob } from "jsr:@std/fs@^1.0.17/expand-glob";
 import { resolve as resolvePath } from "node:path";
-import { fileURLToPath as pathFromFileURL, pathToFileURL as pathToFileURL } from "node:url";
+import { fileURLToPath as pathFromFileURL, pathToFileURL } from "node:url";
 
 /** Gets the files found in the provided root dir path based on the glob. */
 export async function glob(options: {
