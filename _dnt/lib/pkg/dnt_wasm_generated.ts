@@ -854,7 +854,7 @@ export async function instantiate(opts?: InstantiateOptions): Promise<Instantiat
 export async function instantiateWithInstance(opts?: InstantiateOptions): Promise<InstantiateResult> {
 	const { instance } = await loader.load(
 		// opts?.url ?? new URL("dnt_wasm_bg.wasm", import.meta.url),
-		opts?.url ?? new URL("dnt.wasm", import.meta.url),
+		opts?.url ?? new URL("https://jsr.io/@deno/dnt/0.42.1/lib/pkg/dnt_wasm_bg.wasm"),
 		opts?.decompress,
 	);
 	wasm = wasm ?? instance.exports;
