@@ -130,7 +130,6 @@ This module is a modified edition of the JSR package [`dnt`](https://jsr.io/@den
       scripts: {
       },
       engines: {
-        node: ">=16.13.0"
       },
       private: false,
       publishConfig: {

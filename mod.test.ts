@@ -39,7 +39,6 @@ Deno.test("Main", {
 			scripts: {
 			},
 			engines: {
-				node: ">=16.13.0"
 			},
 			private: false,
 			publishConfig: {
