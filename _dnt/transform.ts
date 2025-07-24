@@ -76,7 +76,6 @@ export interface TransformOptions {
 	/// Path or url to the import map.
 	importMap?: string;
 	configFile?: string;
-	internalWasmUrl?: string;
 	cwd: string;
 }
 
@@ -132,9 +131,7 @@ export async function transform(
 			? undefined
 			: valueToUrl(options.importMap),
 	};
-	const wasmFuncs = await instantiate({
-		url: options.internalWasmUrl ? new URL(options.internalWasmUrl) : undefined,
-	});
+	const wasmFuncs = await instantiate();
 	return wasmFuncs.transform(newOptions);
 }
 

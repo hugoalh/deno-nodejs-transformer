@@ -1,7 +1,7 @@
 //deno-lint-ignore-file
 // Copyright 2018-2024 the Deno authors. MIT license.
 
-import * as colors from "jsr:@std/fmt@^1.0.7/colors";
+import * as colors from "jsr:@std/fmt@^1.0.8/colors";
 import { dirname as getPathDirname, join as joinPath } from "node:path";
 import { pathToFileURL } from "node:url";
 import { createProjectSync, ts } from "jsr:@ts-morph/bootstrap@^0.26.1";
@@ -29,7 +29,7 @@ import * as compilerTransforms from "./lib/compiler_transforms.ts";
 import { getPackageJson } from "./lib/package_json.ts";
 // import { getTestRunnerCode } from "./lib/test_runner/get_test_runner_code.ts";
 
-export { emptyDir } from "jsr:@std/fs@^1.0.17/empty-dir";
+export { emptyDir } from "jsr:@std/fs@^1.0.19/empty-dir";
 export type { PackageJson } from "./lib/types.ts";
 export type { LibName, SourceMapOptions } from "./lib/compiler.ts";
 export type { ShimOptions } from "./lib/shims.ts";
@@ -191,8 +191,6 @@ export interface BuildOptions {
 	filterDiagnostic?: (diagnostic: ts.Diagnostic) => boolean;
 	/** Action to do after emitting and before running tests. */
 	postBuild?: () => void | Promise<void>;
-	/** Custom Wasm URL for the internal Wasm module used by dnt. */
-	internalWasmUrl?: string;
 }
 
 /** Builds the specified Deno module to an npm package using the TypeScript compiler. */
@@ -628,7 +626,6 @@ export async function build(options: BuildOptions): Promise<void> {
 			target: scriptTarget,
 			importMap: options.importMap,
 			configFile: options.configFile,
-			internalWasmUrl: options.internalWasmUrl,
 			cwd: pathToFileURL(cwd).toString(),
 		});
 	}
