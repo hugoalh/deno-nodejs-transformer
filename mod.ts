@@ -1,6 +1,6 @@
-import { copy as copyFS } from "jsr:@std/fs@^1.0.17/copy";
-import { emptyDir as emptyFSDir } from "jsr:@std/fs@^1.0.17/empty-dir";
-import { ensureDir as ensureFSDir } from "jsr:@std/fs@^1.0.17/ensure-dir";
+import { copy as copyFS } from "jsr:@std/fs@^1.0.19/copy";
+import { emptyDir as emptyFSDir } from "jsr:@std/fs@^1.0.19/empty-dir";
+import { ensureDir as ensureFSDir } from "jsr:@std/fs@^1.0.19/ensure-dir";
 import { join as joinPath } from "node:path";
 import { walk } from "https://raw.githubusercontent.com/hugoalh/fs-es/v0.4.0/walk.ts";
 import {

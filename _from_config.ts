@@ -6,7 +6,7 @@ import {
 	isJSONObject,
 	type JSONObject,
 	type JSONValue
-} from "https://raw.githubusercontent.com/hugoalh/is-json-es/v1.0.4/mod.ts";
+} from "https://raw.githubusercontent.com/hugoalh/is-json-es/v1.0.5/mod.ts";
 import type { DenoNodeJSTransformerEntrypoint } from "./_entrypoints.ts";
 export class MetadataFromConfig {
 	get [Symbol.toStringTag](): string {

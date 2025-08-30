@@ -1,4 +1,4 @@
-import { sortCollectionByKeys } from "https://raw.githubusercontent.com/hugoalh/sort-es/v0.2.0/collection.ts";
+import { sortCollectionByKeys } from "https://raw.githubusercontent.com/hugoalh/sort-es/v0.3.0/collection.ts";
 import type { MetadataEntrypoints } from "./_entrypoints.ts";
 export interface MetadataBugs {
 	email?: string;
@@ -162,5 +162,5 @@ export async function refactorMetadata({
 		...metadata,
 		...entrypoints,
 		type: "module"
-	}, { specialKeys: metadataKeysSort }), undefined, metadataIndentation));
+	}, { specialEntriesKey: metadataKeysSort }), undefined, metadataIndentation));
 }
