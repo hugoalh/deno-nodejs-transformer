@@ -52,7 +52,7 @@ export interface DenoNodeJSTransformerOptions {
 	filterDiagnostic?: BuildOptions["filterDiagnostic"];
 	/**
 	 * Whether to fix imports injected by the engine which duplicated, unnecessary, or ruined JSDoc.
-	 * @default {false}
+	 * @default {true}
 	 */
 	fixInjectedImports?: boolean;
 	/**
@@ -72,7 +72,7 @@ export interface DenoNodeJSTransformerOptions {
 	/**
 	 * Default set of library options to use. See https://www.typescriptlang.org/tsconfig/#lib.
 	 */
-	lib?: readonly LibName[];
+	lib?: LibName[];
 	/**
 	 * Whether to perform type check of declaration files (those in dependencies).
 	 * @default {false}
@@ -120,11 +120,6 @@ export interface DenoNodeJSTransformerOptions {
 	 */
 	outputDirectoryPreEmpty?: boolean;
 	/**
-	 * Workspace, by absolute directory path.
-	 * @default {Deno.cwd()}
-	 */
-	root?: string;
-	/**
 	 * Shims for NodeJS.
 	 */
 	shims?: DenoNodeJSTransformerShimOptions;
@@ -155,7 +150,7 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 		emitDecoratorMetadata = false,
 		entrypoints,
 		filterDiagnostic,
-		fixInjectedImports = false,
+		fixInjectedImports = true,
 		generateDeclaration = true,
 		generateDeclarationMap = false,
 		importsMap,
@@ -170,7 +165,6 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 		noUncheckedIndexedAccess,
 		outputDirectory = "nodejs",
 		outputDirectoryPreEmpty = false,
-		root = Deno.cwd(),
 		shims,
 		strictBindCallApply,
 		strictFunctionTypes,
@@ -180,115 +174,110 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 		useTSLibHelper = false,
 		useUnknownInCatchVariables,
 	}: DenoNodeJSTransformerOptions = options;
-	const rootOriginal: string = Deno.cwd();
-	try {
-		Deno.chdir(root);
-		await ensureFSDir(outputDirectory);
-		if (outputDirectoryPreEmpty) {
-			await emptyFSDir(outputDirectory);
-		}
-		const entrypointsFmt = resolveEntrypoints(entrypoints, generateDeclaration);
-		await build({
-			compilerOptions: {
-				emitDecoratorMetadata,
-				importHelpers: useTSLibHelper,
-				inlineSources: false,
-				lib,
-				noImplicitAny,
-				noImplicitReturns,
-				noImplicitThis,
-				noStrictGenericChecks,
-				noUncheckedIndexedAccess,
-				skipLibCheck: !libCheck,
-				sourceMap: false,
-				strictBindCallApply,
-				strictFunctionTypes,
-				strictNullChecks,
-				strictPropertyInitialization,
-				stripInternal: false,
-				target,
-				useUnknownInCatchVariables
-			},
-			declaration: generateDeclaration ? "inline" : false,
-			declarationMap: generateDeclarationMap,
-			entryPoints: entrypointsFmt.dnt,
-			esModule: true,
-			filterDiagnostic,
-			importMap: importsMap,
-			mappings,
-			outDir: outputDirectory,
-			package: metadata,
-			scriptModule: false,
-			shims: resolveDNTShimsOptions(shims),
-			skipNpmInstall: true,
-			skipSourceOutput: true,
-			test: false,
-			typeCheck: false
-		});
-		for (const subpath of [
-			"package-lock.json"
-		]) {
-			try {
-				await Deno.remove(joinPath(outputDirectory, subpath), { recursive: true });
-			} catch (error) {
-				if (!(error instanceof Deno.errors.NotFound)) {
-					console.error(error);
-				}
+	await ensureFSDir(outputDirectory);
+	if (outputDirectoryPreEmpty) {
+		await emptyFSDir(outputDirectory);
+	}
+	const entrypointsFmt = resolveEntrypoints(entrypoints, generateDeclaration);
+	await build({
+		compilerOptions: {
+			emitDecoratorMetadata,
+			importHelpers: useTSLibHelper,
+			inlineSources: false,
+			lib,
+			noImplicitAny,
+			noImplicitReturns,
+			noImplicitThis,
+			noStrictGenericChecks,
+			noUncheckedIndexedAccess,
+			skipLibCheck: !libCheck,
+			sourceMap: false,
+			strictBindCallApply,
+			strictFunctionTypes,
+			strictNullChecks,
+			strictPropertyInitialization,
+			stripInternal: false,
+			target,
+			useUnknownInCatchVariables
+		},
+		declaration: generateDeclaration ? "inline" : false,
+		declarationMap: generateDeclarationMap,
+		entryPoints: entrypointsFmt.dnt,
+		esModule: true,
+		filterDiagnostic,
+		importMap: importsMap,
+		mappings,
+		outDir: outputDirectory,
+		package: metadata,
+		scriptModule: false,
+		shims: resolveDNTShimsOptions(shims),
+		skipNpmInstall: true,
+		skipSourceOutput: true,
+		test: false,
+		typeCheck: false
+	});
+	for (const subpath of [
+		".npmignore",
+		"package-lock.json"
+	]) {
+		try {
+			await Deno.remove(joinPath(outputDirectory, subpath), { recursive: true });
+		} catch (error) {
+			if (!(error instanceof Deno.errors.NotFound)) {
+				console.error(error);
 			}
 		}
-		if (fixInjectedImports) {
-			const regexpImportDNTPolyfills = /^import ".+?\/_dnt\.polyfills\.js";\r?\n/gm;
-			const regexpImportDNTShims = /^import .*?dntShim from ".+?\/_dnt\.shims\.js";\r?\n/gm;
-			const regexpShebangs = /^#!.+?\r?\n/g;
-			for await (const { pathRelative } of await walk(outputDirectory, {
-				extensions: [".d.ts", ".js"],
-				includeDirectories: false,
-				includeSymlinkDirectories: false,
-				includeSymlinkFiles: false,
-				skips: [
-					/^_dnt\..+?\.(?:d\.ts|js)$/,
-					/^deps[\\\/]/
-				]
-			})) {
-				const pathRelativeRoot: string = joinPath(outputDirectory, pathRelative);
-				const contextOriginal: string = await Deno.readTextFile(pathRelativeRoot);
-				let contextModified: string = structuredClone(contextOriginal);
-				// Shebang should only have at most 1, but no need to care in here.
-				const shebang: readonly string[] = Array.from(contextModified.matchAll(regexpShebangs), (v: RegExpExecArray): string => {
-					return v[0];
-				});
-				// DNT polyfills should only have at most 1 after deduplicate, but no need to care in here, likely engine fault.
-				const dntPolyfills: Set<string> = new Set<string>(Array.from(contextModified.matchAll(regexpImportDNTPolyfills), (v: RegExpExecArray): string => {
-					return v[0];
-				}));
-				// DNT shims should only have at most 1 after deduplicate, but no need to care in here, likely engine fault.
-				const dntShims: Set<string> = new Set<string>(Array.from(contextModified.matchAll(regexpImportDNTShims), (v: RegExpExecArray): string => {
-					return v[0];
-				}));
-				if (
-					dntPolyfills.size > 0 ||
-					dntShims.size > 0
-				) {
-					contextModified = `${shebang.join("")}${Array.from(dntPolyfills.values()).join("")}${Array.from(dntShims.values()).join("")}${contextModified.replaceAll(regexpShebangs, "").replaceAll(regexpImportDNTPolyfills, "").replaceAll(regexpImportDNTShims, "")}`;
-				}
-				if (contextModified !== contextOriginal) {
-					await Deno.writeTextFile(pathRelativeRoot, contextModified, { create: false });
-				}
+	}
+	if (fixInjectedImports) {
+		const regexpImportDNTPolyfills = /^import ".+?\/_dnt\.polyfills\.js";\r?\n/gm;
+		const regexpImportDNTShims = /^import .*?dntShim from ".+?\/_dnt\.shims\.js";\r?\n/gm;
+		const regexpShebangs = /^#!.+?\r?\n/g;
+		for await (const { pathRelative } of await walk(outputDirectory, {
+			extensions: [".d.ts", ".js"],
+			includeDirectories: false,
+			includeSymlinkDirectories: false,
+			includeSymlinkFiles: false,
+			skips: [
+				/^_dnt\..+?\.(?:d\.ts|js)$/,
+				/^deps[\\\/]/
+			]
+		})) {
+			const pathRelativeRoot: string = joinPath(outputDirectory, pathRelative);
+			const contextOriginal: string = await Deno.readTextFile(pathRelativeRoot);
+			let contextModified: string = structuredClone(contextOriginal);
+			// Shebang should only have at most 1, but no need to care in here.
+			const shebang: readonly string[] = Array.from(contextModified.matchAll(regexpShebangs), (v: RegExpExecArray): string => {
+				return v[0];
+			});
+			// DNT polyfills should only have at most 1 after deduplicate, but no need to care in here, likely engine fault.
+			const dntPolyfills: Set<string> = new Set<string>(Array.from(contextModified.matchAll(regexpImportDNTPolyfills), (v: RegExpExecArray): string => {
+				return v[0];
+			}));
+			// DNT shims should only have at most 1 after deduplicate, but no need to care in here, likely engine fault.
+			const dntShims: Set<string> = new Set<string>(Array.from(contextModified.matchAll(regexpImportDNTShims), (v: RegExpExecArray): string => {
+				return v[0];
+			}));
+			if (
+				dntPolyfills.size > 0 ||
+				dntShims.size > 0
+			) {
+				contextModified = `${shebang.join("")}${Array.from(dntPolyfills.values()).join("")}${Array.from(dntShims.values()).join("")}${contextModified.replaceAll(regexpShebangs, "").replaceAll(regexpImportDNTPolyfills, "").replaceAll(regexpImportDNTShims, "")}`;
+			}
+			if (contextModified !== contextOriginal) {
+				await Deno.writeTextFile(pathRelativeRoot, contextModified, { create: false });
 			}
 		}
-		await refactorMetadata({
-			entrypoints: entrypointsFmt.metadata,
-			metadataPath: joinPath(outputDirectory, "package.json")
-		});
-		for (const copyAssetsEntry of copyAssets) {
-			if (typeof copyAssetsEntry === "string") {
-				await copyFS(copyAssetsEntry, joinPath(outputDirectory, copyAssetsEntry), { overwrite: true });
-			} else {
-				await copyFS(copyAssetsEntry.from, joinPath(outputDirectory, copyAssetsEntry.to), { overwrite: true });
-			}
+	}
+	await refactorMetadata({
+		entrypoints: entrypointsFmt.metadata,
+		metadataPath: joinPath(outputDirectory, "package.json")
+	});
+	for (const copyAssetsEntry of copyAssets) {
+		if (typeof copyAssetsEntry === "string") {
+			await copyFS(copyAssetsEntry, joinPath(outputDirectory, copyAssetsEntry), { overwrite: true });
+		} else {
+			await copyFS(copyAssetsEntry.from, joinPath(outputDirectory, copyAssetsEntry.to), { overwrite: true });
 		}
-	} finally {
-		Deno.chdir(rootOriginal);
 	}
 }
 export default invokeDenoNodeJSTransformer;

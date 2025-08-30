@@ -1,25 +1,41 @@
-//deno-lint-ignore-file
+//deno-lint-ignore-file -- Vendor
 // Copyright 2018-2024 the Deno authors. MIT license.
 
-import * as colors from "jsr:@std/fmt@^1.0.7/colors";
-import { dirname as getPathDirname, join as joinPath } from "node:path";
+import * as colors from "jsr:@std/fmt@^1.0.8/colors";
+import {
+	dirname as getPathDirname,
+	join as joinPath
+} from "node:path";
 import { pathToFileURL } from "node:url";
-import { createProjectSync, ts } from "jsr:@ts-morph/bootstrap@^0.26.1";
+import {
+	createProjectSync,
+	ts
+} from "jsr:@ts-morph/bootstrap@^0.27.0";
 import {
 	getCompilerLibOption,
 	getCompilerScriptTarget,
 	getCompilerSourceMapOptions,
-	// getTopLevelAwaitLocation,
+	getTopLevelAwaitLocation,
 	type LibName,
 	libNamesToCompilerOption,
 	outputDiagnostics,
 	type SourceMapOptions,
-	// transformCodeToTarget,
+	transformCodeToTarget,
 } from "./lib/compiler.ts";
-import { type ShimOptions, shimOptionsToTransformShims } from "./lib/shims.ts";
-// import { getNpmIgnoreText } from "./lib/npm_ignore.ts";
-import type { PackageJson, ScriptTarget } from "./lib/types.ts";
-import { glob, /* runNpmCommand, */ standardizePath } from "./lib/utils.ts";
+import {
+	type ShimOptions,
+	shimOptionsToTransformShims
+} from "./lib/shims.ts";
+import { getNpmIgnoreText } from "./lib/npm_ignore.ts";
+import type {
+	PackageJson,
+	ScriptTarget
+} from "./lib/types.ts";
+import {
+	glob,
+	runNpmCommand,
+	standardizePath
+} from "./lib/utils.ts";
 import {
 	type SpecifierMappings,
 	transform,
@@ -27,11 +43,14 @@ import {
 } from "./transform.ts";
 import * as compilerTransforms from "./lib/compiler_transforms.ts";
 import { getPackageJson } from "./lib/package_json.ts";
-// import { getTestRunnerCode } from "./lib/test_runner/get_test_runner_code.ts";
+import { getTestRunnerCode } from "./lib/test_runner/get_test_runner_code.ts";
 
-export { emptyDir } from "jsr:@std/fs@^1.0.17/empty-dir";
+export { emptyDir } from "jsr:@std/fs@^1.0.19/empty-dir";
 export type { PackageJson } from "./lib/types.ts";
-export type { LibName, SourceMapOptions } from "./lib/compiler.ts";
+export type {
+	LibName,
+	SourceMapOptions
+} from "./lib/compiler.ts";
 export type { ShimOptions } from "./lib/shims.ts";
 
 export interface EntryPoint {
@@ -165,7 +184,7 @@ export interface BuildOptions {
 		 */
 		inlineSources?: boolean;
 		/** Default set of library options to use. See https://www.typescriptlang.org/tsconfig/#lib */
-		lib?: readonly LibName[];
+		lib?: LibName[];
 		/**
 		 * Skip type checking of declaration files (those in dependencies).
 		 * @default true
@@ -191,30 +210,22 @@ export interface BuildOptions {
 	filterDiagnostic?: (diagnostic: ts.Diagnostic) => boolean;
 	/** Action to do after emitting and before running tests. */
 	postBuild?: () => void | Promise<void>;
-	/** Custom Wasm URL for the internal Wasm module used by dnt. */
-	internalWasmUrl?: string;
 }
 
 /** Builds the specified Deno module to an npm package using the TypeScript compiler. */
 export async function build(options: BuildOptions): Promise<void> {
-	/*
 	if (options.scriptModule === false && options.esModule === false) {
 		throw new Error("`scriptModule` and `esModule` cannot both be `false`");
 	}
-	*/
 	// set defaults
 	options = {
 		...options,
 		outDir: standardizePath(options.outDir),
 		entryPoints: options.entryPoints,
-		// scriptModule: options.scriptModule ?? "cjs",
-		scriptModule: false,
-		// esModule: options.esModule ?? true,
-		esModule: true,
-		// typeCheck: options.typeCheck ?? "single",
-		typeCheck: false,
-		// test: options.test ?? true,
-		test: false,
+		scriptModule: options.scriptModule ?? "cjs",
+		esModule: options.esModule ?? true,
+		typeCheck: options.typeCheck ?? "single",
+		test: options.test ?? true,
 		declaration: (options.declaration as boolean) === true
 			? "inline"
 			: options.declaration ?? "inline",
@@ -222,7 +233,7 @@ export async function build(options: BuildOptions): Promise<void> {
 	const cwd = Deno.cwd();
 	const declarationMap = options.declarationMap ??
 		(!!options.declaration && !options.skipSourceOutput);
-	// const packageManager = options.packageManager ?? "npm";
+	const packageManager = options.packageManager ?? "npm";
 	const scriptTarget = options.compilerOptions?.target ?? "ES2021";
 	const entryPoints: EntryPoint[] = options.entryPoints.map((e, i) => {
 		if (typeof e === "string") {
@@ -260,21 +271,19 @@ export async function build(options: BuildOptions): Promise<void> {
 	// createNpmIgnore();
 
 	// install dependencies in order to prepare for checking TS diagnostics
-	// const npmInstallPromise = runNpmInstall();
+	const npmInstallPromise = runNpmInstall();
 
-	/*
 	if (options.typeCheck || options.declaration) {
 		// Unfortunately this can't be run in parallel to building the project
 		// in this case because TypeScript will resolve the npm packages when
 		// creating the project.
 		await npmInstallPromise;
 	}
-	*/
 
 	log("Building project...");
 	// const esmOutDir = path.join(options.outDir, "esm");
 	const esmOutDir = options.outDir;
-	// const scriptOutDir = path.join(options.outDir, "script");
+	const scriptOutDir = joinPath(options.outDir, "script");
 	const typesOutDir = joinPath(options.outDir, "types");
 	const compilerScriptTarget = getCompilerScriptTarget(scriptTarget);
 	const project = createProjectSync({
@@ -345,20 +354,14 @@ export async function build(options: BuildOptions): Promise<void> {
 			outputFile.filePath,
 		);
 		const outputFileText = binaryEntryPointPaths.has(outputFile.filePath)
-			? `#!/usr/bin/env node\n${outputFile.fileText}`
+			? `#!/usr/bin/env node\n${outputFile.fileText.replace(/^#![^\n\r]*\r?\n?/, "")
+			}`
 			: outputFile.fileText;
-		/*
 		const sourceFile = project.createSourceFile(
 			outputFilePath,
 			outputFileText,
 		);
-		*/
-		project.createSourceFile(
-			outputFilePath,
-			outputFileText,
-		);
 
-		/*
 		if (options.scriptModule) {
 			// cjs does not support TLA so error fast if we find one
 			const tlaLocation = getTopLevelAwaitLocation(sourceFile);
@@ -374,49 +377,41 @@ export async function build(options: BuildOptions): Promise<void> {
 				);
 			}
 		}
-		*/
 
-		/*
 		if (!options.skipSourceOutput) {
 			writeFile(outputFilePath, outputFileText);
 		}
-		*/
 	}
 
 	let program = getProgramAndMaybeTypeCheck("ESM");
 
 	// emit only the .d.ts files
-	/*
 	if (options.declaration === "separate") {
 		log("Emitting declaration files...");
 		emit({ onlyDtsFiles: true });
 	}
-	*/
 
-	// emit the esm files
-	// if (options.esModule) {
-	log("Emitting ESM package...");
-	project.compilerOptions.set({
-		declaration: options.declaration === "inline",
-		declarationMap: declarationMap ? options.declaration === "inline" : false,
-		outDir: esmOutDir,
-	});
-	program = project.createProgram();
-	emit({
-		transformers: {
-			before: [compilerTransforms.transformImportMeta],
-		},
-	});
-	/*
-	writeFile(
-		path.join(esmOutDir, "package.json"),
-		`{\n  "type": "module"\n}\n`,
-	);
-	*/
-	// }
+	if (options.esModule) {
+		// emit the esm files
+		log("Emitting ESM package...");
+		project.compilerOptions.set({
+			declaration: options.declaration === "inline",
+			declarationMap: declarationMap ? options.declaration === "inline" : false,
+			outDir: esmOutDir,
+		});
+		program = project.createProgram();
+		emit({
+			transformers: {
+				before: [compilerTransforms.transformImportMeta],
+			},
+		});
+		writeFile(
+			joinPath(esmOutDir, "package.json"),
+			`{\n  "type": "module"\n}\n`,
+		);
+	}
 
 	// emit the script files
-	/*
 	if (options.scriptModule) {
 		log("Emitting script package...");
 		project.compilerOptions.set({
@@ -436,24 +431,20 @@ export async function build(options: BuildOptions): Promise<void> {
 			},
 		});
 		writeFile(
-			path.join(scriptOutDir, "package.json"),
+			joinPath(scriptOutDir, "package.json"),
 			`{\n  "type": "commonjs"\n}\n`,
 		);
 	}
-	*/
 
 	// ensure this is done before running tests
-	// await npmInstallPromise;
+	await npmInstallPromise;
 
 	// run post build action
-	/*
 	if (options.postBuild) {
 		log("Running post build action...");
 		await options.postBuild();
 	}
-	*/
 
-	/*
 	if (options.test) {
 		log("Running tests...");
 		createTestLauncherScript();
@@ -463,7 +454,6 @@ export async function build(options: BuildOptions): Promise<void> {
 			cwd: options.outDir,
 		});
 	}
-	*/
 
 	log("Complete!");
 
@@ -500,7 +490,6 @@ export async function build(options: BuildOptions): Promise<void> {
 		try {
 			program = project.createProgram();
 
-			/*
 			if (shouldTypeCheck()) {
 				log(`Type checking ${current}...`);
 				const diagnostics = filterDiagnostics(
@@ -511,14 +500,12 @@ export async function build(options: BuildOptions): Promise<void> {
 					throw new Error(`Had ${diagnostics.length} diagnostics.`);
 				}
 			}
-			*/
 
 			return program;
 		} finally {
 			Deno.chdir(originalDir);
 		}
 
-		/*
 		function filterDiagnostics(diagnostics: ReadonlyArray<ts.Diagnostic>) {
 			// we transform import.meta's when outputting a script, so ignore these diagnostics
 			return diagnostics.filter((d) =>
@@ -552,7 +539,6 @@ export async function build(options: BuildOptions): Promise<void> {
 				}
 			}
 		}
-		*/
 	}
 
 	function createPackageJson() {
@@ -580,7 +566,6 @@ export async function build(options: BuildOptions): Promise<void> {
 		);
 	}
 
-	/*
 	function createNpmIgnore() {
 		const fileText = getNpmIgnoreText({
 			sourceMap: options.compilerOptions?.sourceMap,
@@ -591,13 +576,11 @@ export async function build(options: BuildOptions): Promise<void> {
 			declaration: options.declaration!,
 		});
 		writeFile(
-			path.join(options.outDir, ".npmignore"),
+			joinPath(options.outDir, ".npmignore"),
 			fileText,
 		);
 	}
-	*/
 
-	/*
 	function runNpmInstall() {
 		if (options.skipNpmInstall) {
 			return Promise.resolve();
@@ -609,7 +592,6 @@ export async function build(options: BuildOptions): Promise<void> {
 			cwd: options.outDir,
 		});
 	}
-	*/
 
 	async function transformEntryPoints(): Promise<TransformOutput> {
 		const { shims, testShims } = shimOptionsToTransformShims(options.shims);
@@ -628,7 +610,6 @@ export async function build(options: BuildOptions): Promise<void> {
 			target: scriptTarget,
 			importMap: options.importMap,
 			configFile: options.configFile,
-			internalWasmUrl: options.internalWasmUrl,
 			cwd: pathToFileURL(cwd).toString(),
 		});
 	}
@@ -641,12 +622,11 @@ export async function build(options: BuildOptions): Promise<void> {
 		console.warn(colors.yellow(`[dnt] ${message}`));
 	}
 
-	/*
 	function createTestLauncherScript() {
 		const denoTestShimPackage = getDependencyByName("@deno/shim-deno-test") ??
 			getDependencyByName("@deno/shim-deno");
 		writeFile(
-			path.join(options.outDir, "test_runner.js"),
+			joinPath(options.outDir, "test_runner.js"),
 			transformCodeToTarget(
 				getTestRunnerCode({
 					denoTestShimPackageName: denoTestShimPackage == null
@@ -661,13 +641,12 @@ export async function build(options: BuildOptions): Promise<void> {
 				compilerScriptTarget,
 			),
 		);
-	
+
 		function getDependencyByName(name: string) {
 			return transformOutput.test.dependencies.find((d) => d.name === name) ??
 				transformOutput.main.dependencies.find((d) => d.name === name);
 		}
 	}
-	*/
 
 	function getTestPattern() {
 		// * named `test.{ts, mts, tsx, js, mjs, jsx}`,
