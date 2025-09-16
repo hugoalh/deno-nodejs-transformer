@@ -5,9 +5,9 @@
 [![GitHub: hugoalh/deno-nodejs-transformer](https://img.shields.io/github/v/release/hugoalh/deno-nodejs-transformer?label=hugoalh/deno-nodejs-transformer&labelColor=181717&logo=github&logoColor=ffffff&sort=semver&style=flat "GitHub: hugoalh/deno-nodejs-transformer")](https://github.com/hugoalh/deno-nodejs-transformer)
 [![JSR: @hugoalh/deno-nodejs-transformer](https://img.shields.io/jsr/v/@hugoalh/deno-nodejs-transformer?label=@hugoalh/deno-nodejs-transformer&labelColor=F7DF1E&logo=jsr&logoColor=000000&style=flat "JSR: @hugoalh/deno-nodejs-transformer")](https://jsr.io/@hugoalh/deno-nodejs-transformer)
 
-A Deno module for transform Deno package to NodeJS package.
+A Deno module for transform Deno code to NodeJS code.
 
-This module is a modified edition of the JSR package [`dnt`](https://jsr.io/@deno/dnt) which aim for:
+This module is a modified edition of the [Deno DNT](https://github.com/denoland/dnt) which aim for:
 
 - Always force with ECMAScript module
 - Hotfix engine issues
