@@ -1,5 +1,5 @@
 {
-	"$schema": "https://deno.land/x/deno/cli/schemas/config-file.v1.json",
+	"$schema": "https://raw.githubusercontent.com/denoland/deno/main/cli/schemas/config-file.v1.json",
 	"fmt": {
 		"indentWidth": 4,
 		"lineWidth": 800,
@@ -17,6 +17,9 @@
 		"rules": {
 			"tags": [
 				"recommended"
+			],
+			"exclude": [
+				"no-import-prefix"
 			],
 			"include": [
 				"default-param-last",
@@ -41,11 +44,11 @@
 	"tasks": {
 		"jsr-check": {
 			"command": "deno publish --allow-dirty --config \"$(deno task jsr-var-manifest-relative)\" --dry-run --no-provenance",
-			"description": "Check package for JSR."
+			"description": "Check for JSR."
 		},
 		"jsr-publish": {
 			"command": "deno publish --allow-dirty --config \"$(deno task jsr-var-manifest-relative)\"",
-			"description": "Publish package to JSR."
+			"description": "Publish to JSR."
 		},
 		"jsr-var-manifest-relative": {
 			"command": "echo \"jsr.jsonc\"",
