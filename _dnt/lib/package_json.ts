@@ -82,7 +82,7 @@ export function getPackageJson({
 	const devDependencies = {
 		...(shouldIncludeTypesNode()
 			? {
-				"@types/node": "^20.9.0",
+				"@types/node": "^24.5.0",
 			}
 			: {}),
 		...testDevDependencies,
