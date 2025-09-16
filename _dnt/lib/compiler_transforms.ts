@@ -1,4 +1,4 @@
-//deno-lint-ignore-file
+//deno-lint-ignore-file -- Vendor
 // Copyright 2018-2024 the Deno authors. MIT license.
 
 import { ts } from "jsr:@ts-morph/bootstrap@^0.26.1";

@@ -1,4 +1,4 @@
-//deno-lint-ignore-file
+//deno-lint-ignore-file -- Vendor
 // Copyright 2018-2024 the Deno authors. MIT license.
 
 /**
@@ -53,7 +53,7 @@ export type Shim = PackageShim | ModuleShim;
 export interface PackageShim {
 	/** Information about the npm package specifier to import. */
 	package: PackageMappedSpecifier;
-	/** Npm package to include in the dev depedencies that has the type declarations. */
+	/** Npm package to include in the dev dependencies that has the type declarations. */
 	typesPackage?: Dependency;
 	/** Named exports from the shim to use as globals. */
 	globalNames: (GlobalName | string)[];

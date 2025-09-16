@@ -1,5 +1,5 @@
-//deno-lint-ignore-file
-//@ts-nocheck
+//deno-lint-ignore-file -- Vendor
+//@ts-nocheck -- Vendor
 import { fetch_specifier } from "./dnt_wasm_helpers.ts";
 
 export interface InstantiateResult {

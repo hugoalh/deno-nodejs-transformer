@@ -1,5 +1,5 @@
-//deno-lint-ignore-file
-//@ts-nocheck
+//deno-lint-ignore-file -- Vendor
+//@ts-nocheck -- Vendor
 import { createCache } from "jsr:@deno/cache-dir@^0.20.0";
 
 const fileFetcher = createCache();
