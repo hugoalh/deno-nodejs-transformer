@@ -1,7 +1,7 @@
 //deno-lint-ignore-file -- Vendor
 // Copyright 2018-2024 the Deno authors. MIT license.
 
-import { expandGlob } from "jsr:@std/fs@^1.0.17/expand-glob";
+import { expandGlob } from "jsr:@std/fs@^1.0.19/expand-glob";
 import { resolve as resolvePath } from "node:path";
 import { fileURLToPath as pathFromFileURL, pathToFileURL } from "node:url";
 
