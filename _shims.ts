@@ -2,9 +2,9 @@ import type {
 	Shim,
 	ShimOptions
 } from "./deps.ts";
-export interface DenoNodeJSTransformerShimOptions extends Omit<ShimOptions, "customDev" | "timers"> {
+export interface DenoNodeJSTransformerShimOptions extends Omit<ShimOptions, "customDev" | "domException" | "timers"> {
 	/**
-	 * Shim `Blob`.
+	 * Shim `Blob` via `node:buffer`.
 	 * 
 	 * This property should define to `true` if the target NodeJS version is not 18 or greater.
 	 * @default {false}
@@ -18,22 +18,17 @@ export interface DenoNodeJSTransformerShimOptions extends Omit<ShimOptions, "cus
 	 */
 	crypto?: boolean;
 	/**
-	 * Shim `Deno` namespace.
+	 * Shim `Deno`.
 	 * @default {true}
 	 */
 	deno?: boolean;
-	/**
-	 * Shim `DOMException` via the NPM package {@linkcode https://www.npmjs.com/package/domexception domexception}.
-	 * @default {false}
-	 */
-	domException?: boolean;
 	/**
 	 * Shim `alert`, `confirm`, and `prompt`.
 	 * @default {true}
 	 */
 	prompts?: boolean;
 	/**
-	 * Shim `fetch`, `File`, `FormData`, `Headers`, `Request`, and `Response` via the NPM package {@linkcode https://www.npmjs.com/package/undici undici}.
+	 * Shim `fetch`, `File`, `FormData`, `Headers`, `Request`, and `Response` via {@linkcode https://github.com/nodejs/undici undici}.
 	 * 
 	 * This property should define to `true` if the target NodeJS version is not 18 or greater.
 	 * @default {false}
@@ -47,7 +42,7 @@ export interface DenoNodeJSTransformerShimOptions extends Omit<ShimOptions, "cus
 	 */
 	weakRef?: boolean;
 	/**
-	 * Shim `WebSocket` via the NPM package {@linkcode https://www.npmjs.com/package/ws ws}.
+	 * Shim `WebSocket` via {@linkcode https://github.com/websockets/ws ws}.
 	 * 
 	 * This property should define to `true` if the target NodeJS version is not 22 or greater.
 	 * @default {false}
@@ -68,7 +63,7 @@ export function resolveDNTShimsOptions(options: DenoNodeJSTransformerShimOptions
 		blob: options.blob ?? false,
 		crypto: options.crypto ?? false,
 		deno: options.deno ?? true,
-		domException: options.domException ?? false,
+		domException: false,
 		prompts: options.prompts ?? true,
 		timers: true,
 		undici: options.undici ?? false,

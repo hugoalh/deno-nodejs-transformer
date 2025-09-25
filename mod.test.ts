@@ -12,15 +12,14 @@ Deno.test("Main", {
 			"LICENSE.md",
 			"README.md"
 		],
-		entrypoints: [{
-			name: ".",
-			path: "./mod.ts"
-		}],
+		entrypointsScript: {
+			".": "./mod.ts"
+		},
 		fixInjectedImports: true,
 		generateDeclarationMap: true,
 		metadata: {
 			name: "@hugoalh/deno-nodejs-transformer-test",
-			version: "0.7.0",
+			version: "0.8.0",
 			description: "Demo of Deno NodeJS Transformer.",
 			keywords: [
 				"dnt",
@@ -35,10 +34,6 @@ Deno.test("Main", {
 			repository: {
 				type: "git",
 				url: "git+https://github.com/hugoalh/deno-nodejs-transformer.git"
-			},
-			scripts: {
-			},
-			engines: {
 			},
 			private: false,
 			publishConfig: {

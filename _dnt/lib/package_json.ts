@@ -42,7 +42,7 @@ export function getPackageJson({
 		// typescript helpers library (https://www.npmjs.com/package/tslib)
 		...(includeTsLib
 			? {
-				tslib: "^2.6.2",
+				tslib: "^2.8.1",
 			}
 			: {}),
 		// add dependencies from transform

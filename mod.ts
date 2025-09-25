@@ -4,11 +4,8 @@ import { ensureDir as ensureFSDir } from "jsr:@std/fs@^1.0.19/ensure-dir";
 import { join as joinPath } from "node:path";
 import { walk } from "https://raw.githubusercontent.com/hugoalh/fs-es/v0.4.0/walk.ts";
 import {
-	resolveEntrypoints,
-	type DenoNodeJSTransformerEntrypoint
-} from "./_entrypoints.ts";
-import {
 	refactorMetadata,
+	resolveEntrypoints,
 	type Metadata,
 } from "./_metadata.ts";
 import {
@@ -17,39 +14,27 @@ import {
 } from "./_shims.ts";
 import {
 	build,
-	type BuildOptions,
 	type LibName,
 	type ScriptTarget,
 	type SpecifierMappings
 } from "./deps.ts";
-export {
-	getMetadataFromConfig,
-	MetadataFromConfig
-} from "./_from_config.ts";
 export interface DenoNodeJSTransformerCopyAssetsOptions {
 	from: string;
 	to: string;
 }
 export interface DenoNodeJSTransformerOptions {
 	/**
-	 * Copy assets after the build, by relative path under the {@linkcode root}.
+	 * Copy assets after the build, by relative path under the {@linkcode workspace}.
 	 */
 	copyAssets?: readonly (string | DenoNodeJSTransformerCopyAssetsOptions)[];
 	/**
-	 * Whether to enable experimental support for emit type metadata for decorators which works with the NPM package {@linkcode https://www.npmjs.com/package/reflect-metadata reflect-metadata}.
-	 * @default {false}
+	 * Entrypoints of the executable.
 	 */
-	emitDecoratorMetadata?: boolean;
+	entrypointsExecutable?: Record<string, string>;
 	/**
-	 * Entrypoints of the package.
+	 * Entrypoints of the script.
 	 */
-	entrypoints: readonly DenoNodeJSTransformerEntrypoint[];
-	/**
-	 * Filter out diagnostics that want to ignore during type check and emit.
-	 * 
-	 * Return `true` to surface the diagnostic, or return `false` to ignore it.
-	 */
-	filterDiagnostic?: BuildOptions["filterDiagnostic"];
+	entrypointsScript?: Record<string, string>;
 	/**
 	 * Whether to fix imports injected by the engine which duplicated, unnecessary, or ruined JSDoc.
 	 * @default {false}
@@ -66,18 +51,13 @@ export interface DenoNodeJSTransformerOptions {
 	 */
 	generateDeclarationMap?: boolean;
 	/**
-	 * Imports map, by relative file path under the {@linkcode root}.
+	 * Imports map, by relative file path under the {@linkcode workspace}.
 	 */
 	importsMap?: string;
 	/**
 	 * Default set of library options to use. See https://www.typescriptlang.org/tsconfig/#lib.
 	 */
 	lib?: readonly LibName[];
-	/**
-	 * Whether to perform type check of declaration files (those in dependencies).
-	 * @default {false}
-	 */
-	libCheck?: boolean;
 	/**
 	 * Remap specifiers.
 	 * 
@@ -110,7 +90,7 @@ export interface DenoNodeJSTransformerOptions {
 	 */
 	metadata: Metadata;
 	/**
-	 * Directory of the output, by relative directory path under the {@linkcode root}.
+	 * Directory of the output, by relative directory path under the {@linkcode workspace}.
 	 * @default {"nodejs"}
 	 */
 	outputDirectory?: string;
@@ -119,11 +99,6 @@ export interface DenoNodeJSTransformerOptions {
 	 * @default {false}
 	 */
 	outputDirectoryPreEmpty?: boolean;
-	/**
-	 * Workspace, by absolute directory path.
-	 * @default {Deno.cwd()}
-	 */
-	root?: string;
 	/**
 	 * Shims for NodeJS.
 	 */
@@ -134,161 +109,148 @@ export interface DenoNodeJSTransformerOptions {
 	 */
 	target?: ScriptTarget;
 	/**
-	 * Whether to use NPM package {@linkcode https://www.npmjs.com/package/tslib tslib} to import helper functions once per project instead of include them per-file if necessary.
+	 * Whether to use {@linkcode https://github.com/Microsoft/tslib TSLib} to import helper functions once per project instead of include them per-file if necessary.
 	 * @default {false}
 	 */
 	useTSLibHelper?: boolean;
-	noImplicitAny?: boolean;
-	noImplicitReturns?: boolean;
-	noImplicitThis?: boolean;
-	noStrictGenericChecks?: boolean;
-	noUncheckedIndexedAccess?: boolean;
-	strictBindCallApply?: boolean;
-	strictFunctionTypes?: boolean;
-	strictNullChecks?: boolean;
-	strictPropertyInitialization?: boolean;
-	useUnknownInCatchVariables?: boolean;
+	/**
+	 * Workspace, by absolute directory path.
+	 * @default {Deno.cwd()}
+	 */
+	workspace?: string;
+}
+function chdirDispose(directory: string | URL) {
+	const original: string = Deno.cwd();
+	Deno.chdir(directory);
+	return {
+		[Symbol.dispose]() {
+			Deno.chdir(original);
+		}
+	};
 }
 export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformerOptions): Promise<void> {
 	const {
 		copyAssets = [],
-		emitDecoratorMetadata = false,
-		entrypoints,
-		filterDiagnostic,
+		entrypointsExecutable = {},
+		entrypointsScript = {},
 		fixInjectedImports = false,
 		generateDeclaration = true,
 		generateDeclarationMap = false,
 		importsMap,
 		lib,
-		libCheck = false,
 		mappings,
 		metadata,
-		noImplicitAny,
-		noImplicitReturns,
-		noImplicitThis,
-		noStrictGenericChecks,
-		noUncheckedIndexedAccess,
 		outputDirectory = "nodejs",
 		outputDirectoryPreEmpty = false,
-		root = Deno.cwd(),
 		shims,
-		strictBindCallApply,
-		strictFunctionTypes,
-		strictNullChecks,
-		strictPropertyInitialization,
 		target = "ES2022",
 		useTSLibHelper = false,
-		useUnknownInCatchVariables,
+		workspace = Deno.cwd()
 	}: DenoNodeJSTransformerOptions = options;
-	const rootOriginal: string = Deno.cwd();
-	try {
-		Deno.chdir(root);
-		await ensureFSDir(outputDirectory);
-		if (outputDirectoryPreEmpty) {
-			await emptyFSDir(outputDirectory);
-		}
-		const entrypointsFmt = resolveEntrypoints(entrypoints, generateDeclaration);
-		await build({
-			compilerOptions: {
-				emitDecoratorMetadata,
-				importHelpers: useTSLibHelper,
-				inlineSources: false,
-				lib,
-				noImplicitAny,
-				noImplicitReturns,
-				noImplicitThis,
-				noStrictGenericChecks,
-				noUncheckedIndexedAccess,
-				skipLibCheck: !libCheck,
-				sourceMap: false,
-				strictBindCallApply,
-				strictFunctionTypes,
-				strictNullChecks,
-				strictPropertyInitialization,
-				stripInternal: false,
-				target,
-				useUnknownInCatchVariables
-			},
-			declaration: generateDeclaration ? "inline" : false,
-			declarationMap: generateDeclarationMap,
-			entryPoints: entrypointsFmt.dnt,
-			esModule: true,
-			filterDiagnostic,
-			importMap: importsMap,
-			mappings,
-			outDir: outputDirectory,
-			package: metadata,
-			scriptModule: false,
-			shims: resolveDNTShimsOptions(shims),
-			skipNpmInstall: true,
-			skipSourceOutput: true,
-			test: false,
-			typeCheck: false
-		});
-		for (const subpath of [
-			"package-lock.json"
-		]) {
-			try {
-				await Deno.remove(joinPath(outputDirectory, subpath), { recursive: true });
-			} catch (error) {
-				if (!(error instanceof Deno.errors.NotFound)) {
-					console.error(error);
-				}
+	using _ = chdirDispose(workspace);
+	await ensureFSDir(outputDirectory);
+	if (outputDirectoryPreEmpty) {
+		await emptyFSDir(outputDirectory);
+	}
+	const entrypointsFmt = resolveEntrypoints(entrypointsExecutable, entrypointsScript, generateDeclaration);
+	await build({
+		compilerOptions: {
+			emitDecoratorMetadata: false,
+			experimentalDecorators: false,
+			importHelpers: useTSLibHelper,
+			inlineSources: false,
+			lib,
+			noImplicitAny: false,
+			noImplicitReturns: false,
+			noImplicitThis: false,
+			noStrictGenericChecks: false,
+			noUncheckedIndexedAccess: false,
+			skipLibCheck: true,
+			sourceMap: false,
+			strictBindCallApply: false,
+			strictFunctionTypes: false,
+			strictNullChecks: false,
+			strictPropertyInitialization: false,
+			stripInternal: false,
+			target,
+			useUnknownInCatchVariables: false
+		},
+		declaration: generateDeclaration ? "inline" : false,
+		declarationMap: generateDeclarationMap,
+		entryPoints: entrypointsFmt.dnt,
+		esModule: true,
+		importMap: importsMap,
+		mappings,
+		outDir: outputDirectory,
+		package: metadata,
+		scriptModule: false,
+		shims: resolveDNTShimsOptions(shims),
+		skipNpmInstall: true,
+		skipSourceOutput: true,
+		test: false,
+		typeCheck: false
+	});
+	for (const subpath of [
+		"package-lock.json"
+	]) {
+		try {
+			await Deno.remove(joinPath(outputDirectory, subpath), { recursive: true });
+		} catch (error) {
+			if (!(error instanceof Deno.errors.NotFound)) {
+				console.error(error);
 			}
 		}
-		if (fixInjectedImports) {
-			const regexpImportDNTPolyfills = /^import ".+?\/_dnt\.polyfills\.js";\r?\n/gm;
-			const regexpImportDNTShims = /^import .*?dntShim from ".+?\/_dnt\.shims\.js";\r?\n/gm;
-			const regexpShebangs = /^#!.+?\r?\n/g;
-			for await (const { pathRelative } of await walk(outputDirectory, {
-				extensions: [".d.ts", ".js"],
-				includeDirectories: false,
-				includeSymlinkDirectories: false,
-				includeSymlinkFiles: false,
-				skips: [
-					/^_dnt\..+?\.(?:d\.ts|js)$/,
-					/^deps[\\\/]/
-				]
-			})) {
-				const pathRelativeRoot: string = joinPath(outputDirectory, pathRelative);
-				const contextOriginal: string = await Deno.readTextFile(pathRelativeRoot);
-				let contextModified: string = structuredClone(contextOriginal);
-				// Shebang should only have at most 1, but no need to care in here.
-				const shebang: readonly string[] = Array.from(contextModified.matchAll(regexpShebangs), (v: RegExpExecArray): string => {
-					return v[0];
-				});
-				// DNT polyfills should only have at most 1 after deduplicate, but no need to care in here, likely engine fault.
-				const dntPolyfills: Set<string> = new Set<string>(Array.from(contextModified.matchAll(regexpImportDNTPolyfills), (v: RegExpExecArray): string => {
-					return v[0];
-				}));
-				// DNT shims should only have at most 1 after deduplicate, but no need to care in here, likely engine fault.
-				const dntShims: Set<string> = new Set<string>(Array.from(contextModified.matchAll(regexpImportDNTShims), (v: RegExpExecArray): string => {
-					return v[0];
-				}));
-				if (
-					dntPolyfills.size > 0 ||
-					dntShims.size > 0
-				) {
-					contextModified = `${shebang.join("")}${Array.from(dntPolyfills.values()).join("")}${Array.from(dntShims.values()).join("")}${contextModified.replaceAll(regexpShebangs, "").replaceAll(regexpImportDNTPolyfills, "").replaceAll(regexpImportDNTShims, "")}`;
-				}
-				if (contextModified !== contextOriginal) {
-					await Deno.writeTextFile(pathRelativeRoot, contextModified, { create: false });
-				}
+	}
+	if (fixInjectedImports) {
+		const regexpImportDNTPolyfills = /^import ".+?\/_dnt\.polyfills\.js";\r?\n/gm;
+		const regexpImportDNTShims = /^import .*?dntShim from ".+?\/_dnt\.shims\.js";\r?\n/gm;
+		const regexpShebangs = /^#!.+?\r?\n/g;
+		for await (const { pathRelative } of await walk(outputDirectory, {
+			extensions: [".d.ts", ".js"],
+			includeDirectories: false,
+			includeSymlinkDirectories: false,
+			includeSymlinkFiles: false,
+			skips: [
+				/^_dnt\..+?\.(?:d\.ts|js)$/,
+				/^deps[\\\/]/
+			]
+		})) {
+			const pathRelativeRoot: string = joinPath(outputDirectory, pathRelative);
+			const contextOriginal: string = await Deno.readTextFile(pathRelativeRoot);
+			let contextModified: string = structuredClone(contextOriginal);
+			// Shebang should only have at most 1, but no need to care in here.
+			const shebang: readonly string[] = Array.from(contextModified.matchAll(regexpShebangs), (match: RegExpExecArray): string => {
+				return match[0];
+			});
+			// DNT polyfills should only have at most 1 after deduplicate, but no need to care in here, likely engine fault.
+			const dntPolyfills: Set<string> = new Set<string>(Array.from(contextModified.matchAll(regexpImportDNTPolyfills), (match: RegExpExecArray): string => {
+				return match[0];
+			}));
+			// DNT shims should only have at most 1 after deduplicate, but no need to care in here, likely engine fault.
+			const dntShims: Set<string> = new Set<string>(Array.from(contextModified.matchAll(regexpImportDNTShims), (match: RegExpExecArray): string => {
+				return match[0];
+			}));
+			if (
+				dntPolyfills.size > 0 ||
+				dntShims.size > 0
+			) {
+				contextModified = `${shebang.join("")}${Array.from(dntPolyfills.values()).join("")}${Array.from(dntShims.values()).join("")}${contextModified.replaceAll(regexpShebangs, "").replaceAll(regexpImportDNTPolyfills, "").replaceAll(regexpImportDNTShims, "")}`;
+			}
+			if (contextModified !== contextOriginal) {
+				await Deno.writeTextFile(pathRelativeRoot, contextModified, { create: false });
 			}
 		}
-		await refactorMetadata({
-			entrypoints: entrypointsFmt.metadata,
-			metadataPath: joinPath(outputDirectory, "package.json")
-		});
-		for (const copyAssetsEntry of copyAssets) {
-			if (typeof copyAssetsEntry === "string") {
-				await copyFS(copyAssetsEntry, joinPath(outputDirectory, copyAssetsEntry), { overwrite: true });
-			} else {
-				await copyFS(copyAssetsEntry.from, joinPath(outputDirectory, copyAssetsEntry.to), { overwrite: true });
-			}
+	}
+	await refactorMetadata({
+		entrypoints: entrypointsFmt.metadata,
+		metadataPath: joinPath(outputDirectory, "package.json")
+	});
+	for (const copyAssetsEntry of copyAssets) {
+		if (typeof copyAssetsEntry === "string") {
+			await copyFS(copyAssetsEntry, joinPath(outputDirectory, copyAssetsEntry), { overwrite: true });
+		} else {
+			await copyFS(copyAssetsEntry.from, joinPath(outputDirectory, copyAssetsEntry.to), { overwrite: true });
 		}
-	} finally {
-		Deno.chdir(rootOriginal);
 	}
 }
 export default invokeDenoNodeJSTransformer;
