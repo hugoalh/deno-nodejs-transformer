@@ -153,6 +153,15 @@ export function resolveEntrypoints(executables: Record<string, string>, scripts:
 		}
 		return [name, resolveEntrypointPaths(path, declaration)];
 	}));
+	const metadataBin = sortCollectionByKeys(Object.fromEntries(Object.entries(executablesFmt).map(([name, { default: pathDefault }]: readonly [string, DenoNodeJSTransformerEntrypointPaths]): readonly [string, string] => {
+		return [name, pathDefault];
+	})));
+	const matadataExports = sortCollectionByKeys(Object.fromEntries(Object.entries(scriptsFmt).map(([name, paths]: readonly [string, DenoNodeJSTransformerEntrypointPaths]) => {
+		return [name, { import: paths }];
+	})) as Record<string, { import: DenoNodeJSTransformerEntrypointPaths; }>, {
+		restPlaceFirst: true,
+		specialEntriesKey: ["."]
+	});
 	return {
 		dnt: [
 			...Object.entries(executables).map(([name, path]: readonly [string, string]): EntryPoint => {
@@ -171,17 +180,10 @@ export function resolveEntrypoints(executables: Record<string, string>, scripts:
 			})
 		],
 		metadata: {
-			bin: sortCollectionByKeys(Object.fromEntries(Object.entries(executablesFmt).map(([name, { default: pathDefault }]: readonly [string, DenoNodeJSTransformerEntrypointPaths]): readonly [string, string] => {
-				return [name, pathDefault];
-			}))),
+			bin: (Object.entries(metadataBin).length > 0) ? metadataBin : undefined,
 			main: scriptsFmt["."]?.default,
 			module: scriptsFmt["."]?.default,
-			exports: sortCollectionByKeys(Object.fromEntries(Object.entries(scriptsFmt).map(([name, paths]: readonly [string, DenoNodeJSTransformerEntrypointPaths]) => {
-				return [name, { import: paths }];
-			})), {
-				restPlaceFirst: true,
-				specialEntriesKey: ["."]
-			}),
+			exports: (Object.entries(matadataExports).length > 0) ? matadataExports : undefined,
 			types: scriptsFmt["."]?.types
 		}
 	};
