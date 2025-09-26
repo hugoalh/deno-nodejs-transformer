@@ -19,7 +19,7 @@ This module is a modified edition of the [Deno DNT](https://github.com/denoland/
 
 | **Targets** | **Remote** | **JSR** |
 |:--|:-:|:-:|
-| **[Deno](https://deno.land/)** >= v2.5.1 | ✔️ | ✔️ |
+| **[Deno](https://deno.land/)** >= v2.5.2 | ✔️ | ✔️ |
 
 > [!NOTE]
 > - It is possible to use this module in other methods/ways which not listed in here, however those methods/ways are not officially supported, and should beware maybe cause security issues.
