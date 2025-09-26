@@ -10,7 +10,6 @@ A Deno module for transform Deno code to NodeJS code.
 This module is a modified edition of the [Deno DNT](https://github.com/denoland/dnt) which aim for:
 
 - Always force with ECMAScript module
-- Hotfix engine issues
 - Improve file structure
 - Unify configuration
 
