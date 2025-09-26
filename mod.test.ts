@@ -8,14 +8,14 @@ Deno.test("Main", {
 	}
 }, async () => {
 	await invokeDenoNodeJSTransformer({
-		copyAssets: [
-			"LICENSE.md",
-			"README.md"
+		copyEntries: [
+			/^LICENSE(?:[-\._][^\/\\]+)?\.md$/i,
+			/^README(?:[-\._][^\/\\]+)?\.md$/i
 		],
 		entrypointsScript: {
 			".": "./mod.ts"
 		},
-		fixInjectedImports: true,
+		fixDenoDNTModifications: true,
 		generateDeclarationMap: true,
 		metadata: {
 			name: "@hugoalh/deno-nodejs-transformer-test",

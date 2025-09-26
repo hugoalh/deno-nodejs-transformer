@@ -115,7 +115,7 @@ export function getPackageJson({
 		...mainExport,
 		...binaryExport,
 		...packageJsonObj,
-		scripts: {},
+		// scripts: {},
 		...deleteEmptyKeys({
 			exports: {
 				...(includeEsModule || exports.length > 1

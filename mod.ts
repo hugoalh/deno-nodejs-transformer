@@ -1,8 +1,14 @@
 import { copy as copyFS } from "jsr:@std/fs@^1.0.19/copy";
 import { emptyDir as emptyFSDir } from "jsr:@std/fs@^1.0.19/empty-dir";
 import { ensureDir as ensureFSDir } from "jsr:@std/fs@^1.0.19/ensure-dir";
-import { join as joinPath } from "node:path";
-import { walk } from "https://raw.githubusercontent.com/hugoalh/fs-es/v0.4.0/walk.ts";
+import {
+	basename as getPathBasename,
+	join as joinPath
+} from "node:path";
+import {
+	walk,
+	type FSWalkEntry
+} from "https://raw.githubusercontent.com/hugoalh/fs-es/v0.4.0/walk.ts";
 import {
 	refactorMetadata,
 	resolveEntrypoints,
@@ -18,15 +24,15 @@ import {
 	type ScriptTarget,
 	type SpecifierMappings
 } from "./deps.ts";
-export interface DenoNodeJSTransformerCopyAssetsOptions {
-	from: string;
+export interface DenoNodeJSTransformerCopyEntriesOptions {
+	from: string | RegExp;
 	to: string;
 }
 export interface DenoNodeJSTransformerOptions {
 	/**
-	 * Copy assets after the build, by relative path under the {@linkcode workspace}.
+	 * Copy entries as is after the transform, by relative path under the {@link workspace workspace}.
 	 */
-	copyAssets?: readonly (string | DenoNodeJSTransformerCopyAssetsOptions)[];
+	copyEntries?: readonly (string | RegExp | DenoNodeJSTransformerCopyEntriesOptions)[];
 	/**
 	 * Entrypoints of the executable.
 	 */
@@ -36,10 +42,10 @@ export interface DenoNodeJSTransformerOptions {
 	 */
 	entrypointsScript?: Record<string, string>;
 	/**
-	 * Whether to fix imports injected by the engine which duplicated, unnecessary, or ruined JSDoc.
-	 * @default {false}
+	 * Whether to fix the modifications made by the Deno DNT which cause other issues.
+	 * @default {true}
 	 */
-	fixInjectedImports?: boolean;
+	fixDenoDNTModifications?: boolean;
 	/**
 	 * Whether to generate declaration files (`.d.ts`).
 	 * @default {true}
@@ -51,11 +57,11 @@ export interface DenoNodeJSTransformerOptions {
 	 */
 	generateDeclarationMap?: boolean;
 	/**
-	 * Imports map, by relative file path under the {@linkcode workspace}.
+	 * Imports map, by relative file path under the {@link workspace workspace}.
 	 */
 	importsMap?: string;
 	/**
-	 * Default set of library options to use. See https://www.typescriptlang.org/tsconfig/#lib.
+	 * Sets of the ECMAScript library to use. See https://www.typescriptlang.org/tsconfig/#lib.
 	 */
 	lib?: readonly LibName[];
 	/**
@@ -86,21 +92,21 @@ export interface DenoNodeJSTransformerOptions {
 	 */
 	mappings?: SpecifierMappings;
 	/**
-	 * Metadata of the NodeJS package (i.e.: `package.json`).
+	 * Metadata (i.e.: `package.json`).
 	 */
 	metadata: Metadata;
 	/**
-	 * Directory of the output, by relative directory path under the {@linkcode workspace}.
+	 * Directory of the output, by relative directory path under the {@link workspace workspace}.
 	 * @default {"nodejs"}
 	 */
 	outputDirectory?: string;
 	/**
-	 * Whether to empty the {@linkcode outputDirectory} before the transform.
+	 * Whether to empty the {@link outputDirectory output directory} before the transform.
 	 * @default {false}
 	 */
 	outputDirectoryPreEmpty?: boolean;
 	/**
-	 * Shims for NodeJS.
+	 * Shims.
 	 */
 	shims?: DenoNodeJSTransformerShimOptions;
 	/**
@@ -130,10 +136,10 @@ function chdirDispose(directory: string | URL) {
 }
 export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformerOptions): Promise<void> {
 	const {
-		copyAssets = [],
+		copyEntries = [],
 		entrypointsExecutable = {},
 		entrypointsScript = {},
-		fixInjectedImports = false,
+		fixDenoDNTModifications = false,
 		generateDeclaration = true,
 		generateDeclarationMap = false,
 		importsMap,
@@ -147,6 +153,27 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 		useTSLibHelper = false,
 		workspace = Deno.cwd()
 	}: DenoNodeJSTransformerOptions = options;
+	const copyEntriesPayload: readonly (readonly [string, string] | null)[] = (copyEntries.length > 0) ? await Array.fromAsync(await walk(workspace), ({ pathRelative }: FSWalkEntry): readonly [string, string] | null => {
+		for (const copyEntry of copyEntries) {
+			if (typeof copyEntry === "string") {
+				if (copyEntry === pathRelative) {
+					return [pathRelative, joinPath(outputDirectory, pathRelative)];
+				}
+			} else if (copyEntry instanceof RegExp) {
+				if (copyEntry.test(pathRelative)) {
+					return [pathRelative, joinPath(outputDirectory, pathRelative)];
+				}
+			} else {
+				if ((copyEntry.from instanceof RegExp) ? copyEntry.from.test(pathRelative) : copyEntry.from === pathRelative) {
+					return [pathRelative, joinPath(outputDirectory, (
+						copyEntry.to.endsWith("/") ||
+						copyEntry.to.endsWith("\\")
+					) ? joinPath(copyEntry.to.slice(0, copyEntry.to.length - 1), getPathBasename(pathRelative)) : copyEntry.to)];
+				}
+			}
+		}
+		return null;
+	}) : [];
 	using _ = chdirDispose(workspace);
 	await ensureFSDir(outputDirectory);
 	if (outputDirectoryPreEmpty) {
@@ -201,7 +228,7 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 			}
 		}
 	}
-	if (fixInjectedImports) {
+	if (fixDenoDNTModifications) {
 		const regexpImportDNTPolyfills = /^import ".+?\/_dnt\.polyfills\.js";\r?\n/gm;
 		const regexpImportDNTShims = /^import .*?dntShim from ".+?\/_dnt\.shims\.js";\r?\n/gm;
 		const regexpShebangs = /^#!.+?\r?\n/g;
@@ -245,11 +272,10 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 		entrypoints: entrypointsFmt.metadata,
 		metadataPath: joinPath(outputDirectory, "package.json")
 	});
-	for (const copyAssetsEntry of copyAssets) {
-		if (typeof copyAssetsEntry === "string") {
-			await copyFS(copyAssetsEntry, joinPath(outputDirectory, copyAssetsEntry), { overwrite: true });
-		} else {
-			await copyFS(copyAssetsEntry.from, joinPath(outputDirectory, copyAssetsEntry.to), { overwrite: true });
+	for (const copyEntryPayload of copyEntriesPayload) {
+		if (copyEntryPayload !== null) {
+			const [from, to] = copyEntryPayload;
+			await copyFS(from, to, { overwrite: true });
 		}
 	}
 }
