@@ -15,7 +15,6 @@ Deno.test("Main", {
 		entrypointsScript: {
 			".": "./mod.ts"
 		},
-		fixDenoDNTModifications: true,
 		generateDeclarationMap: true,
 		metadata: {
 			name: "@hugoalh/deno-nodejs-transformer-test",

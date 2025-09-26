@@ -139,7 +139,7 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 		copyEntries = [],
 		entrypointsExecutable = {},
 		entrypointsScript = {},
-		fixDenoDNTModifications = false,
+		fixDenoDNTModifications = true,
 		generateDeclaration = true,
 		generateDeclarationMap = false,
 		importsMap,

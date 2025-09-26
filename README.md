@@ -65,34 +65,22 @@ This module is a modified edition of the [Deno DNT](https://github.com/denoland/
   ```
 - ```ts
   interface DenoNodeJSTransformerOptions {
-    copyAssets?: (string | DenoNodeJSTransformerCopyAssetsOptions)[];
-    emitDecoratorMetadata?: boolean;
-    entrypoints: DenoNodeJSTransformerEntrypoint[];
-    filterDiagnostic?: BuildOptions["filterDiagnostic"];
-    fixInjectedImports?: boolean;
+    copyEntries?: readonly (string | RegExp | DenoNodeJSTransformerCopyEntriesOptions)[];
+    entrypointsExecutable?: Record<string, string>;
+    entrypointsScript?: Record<string, string>;
+    fixDenoDNTModifications?: boolean;
     generateDeclaration?: boolean;
     generateDeclarationMap?: boolean;
     importsMap?: string;
     lib?: LibName[];
-    libCheck?: boolean;
     mappings?: SpecifierMappings;
     metadata: Metadata;
     outputDirectory?: string;
     outputDirectoryPreEmpty?: boolean;
-    root?: string;
     shims?: DenoNodeJSTransformerShimOptions;
     target?: ScriptTarget;
     useTSLibHelper?: boolean;
-    noImplicitAny?: boolean;
-    noImplicitReturns?: boolean;
-    noImplicitThis?: boolean;
-    noStrictGenericChecks?: boolean;
-    noUncheckedIndexedAccess?: boolean;
-    strictBindCallApply?: boolean;
-    strictFunctionTypes?: boolean;
-    strictNullChecks?: boolean;
-    strictPropertyInitialization?: boolean;
-    useUnknownInCatchVariables?: boolean;
+    workspace?: string;
   }
   ```
 
@@ -105,6 +93,10 @@ This module is a modified edition of the [Deno DNT](https://github.com/denoland/
 
 - ```ts
   await invokeDenoNodeJSTransformer({
+    copyEntries: [
+      /^LICENSE(?:[-\._][^\/\\]+)?\.md$/i,
+      /^README(?:[-\._][^\/\\]+)?\.md$/i
+    ],
     entrypointsScript: {
       ".": "./mod.ts"
     },
@@ -131,7 +123,7 @@ This module is a modified edition of the [Deno DNT](https://github.com/denoland/
         access: "public"
       }
     },
-    outputDirectory: "npm",
+    outputDirectory: "dist/npm",
     outputDirectoryPreEmpty: true
   });
   ```
