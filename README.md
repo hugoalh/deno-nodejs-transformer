@@ -5,9 +5,9 @@
 [![GitHub: hugoalh/deno-nodejs-transformer](https://img.shields.io/github/v/release/hugoalh/deno-nodejs-transformer?label=hugoalh/deno-nodejs-transformer&labelColor=181717&logo=github&logoColor=ffffff&sort=semver&style=flat "GitHub: hugoalh/deno-nodejs-transformer")](https://github.com/hugoalh/deno-nodejs-transformer)
 [![JSR: @hugoalh/deno-nodejs-transformer](https://img.shields.io/jsr/v/@hugoalh/deno-nodejs-transformer?label=@hugoalh/deno-nodejs-transformer&labelColor=F7DF1E&logo=jsr&logoColor=000000&style=flat "JSR: @hugoalh/deno-nodejs-transformer")](https://jsr.io/@hugoalh/deno-nodejs-transformer)
 
-A Deno module for transform Deno code to NodeJS code.
+Transform Deno code to NodeJS code.
 
-This module is a modified edition of the [Deno DNT](https://github.com/denoland/dnt) which aim for:
+Currently, this is a modified edition of the [Deno DNT](https://github.com/denoland/dnt) which aim for:
 
 - Always force with ECMAScript module
 - Improve file structure
@@ -15,38 +15,41 @@ This module is a modified edition of the [Deno DNT](https://github.com/denoland/
 
 ## 🔰 Begin
 
-### 🎯 Targets
+> [!NOTE]
+> - Use via other methods/ways are not officially supported.
 
-| **Targets** | **Remote** | **JSR** |
+### ECMAScript
+
+|  | **Remote** | **JSR** |
 |:--|:-:|:-:|
 | **[Deno](https://deno.land/)** >= v2.5.2 | ✔️ | ✔️ |
 
-> [!NOTE]
-> - It is possible to use this module in other methods/ways which not listed in here, however those methods/ways are not officially supported, and should beware maybe cause security issues.
+#### #️⃣ Sources
 
-### #️⃣ Resources Identifier
+- Remote
+  - GitHub Raw
+    ```
+    https://raw.githubusercontent.com/hugoalh/deno-nodejs-transformer/{Tag}/mod.ts
+    ```
+  > [!NOTE]
+  > - It is possible to use via other sub paths, but do not use non public API if either:
+  >   - it's path has an underscore prefix (e.g.: `_foo.ts`, `_util/bar.ts`)
+  >   - it is a benchmark or test file (e.g.: `foo.bench.ts`, `foo.test.ts`)
+  >   - it's symbol has an underscore prefix (e.g.: `_bar`, `_foo`)
+- JSR
+  ```
+  jsr:@hugoalh/deno-nodejs-transformer[@{Tag}]
+  ```
+  > [!NOTE]
+  > - It is recommended to include tag for immutability.
 
-- **Remote - GitHub Raw:**
-  ```
-  https://raw.githubusercontent.com/hugoalh/deno-nodejs-transformer/{Tag}/mod.ts
-  ```
-- **JSR:**
-  ```
-  [jsr:]@hugoalh/deno-nodejs-transformer[@{Tag}]
-  ```
+#### ⤵️ Entrypoints
 
-> [!NOTE]
-> - For usage of remote resources, it is recommended to import the entire module with the main path `mod.ts`, however it is also able to import part of the module with sub path if available, but do not import if:
->
->   - it's path has an underscore prefix (e.g.: `_foo.ts`, `_util/bar.ts`), or
->   - it is a benchmark or test file (e.g.: `foo.bench.ts`, `foo.test.ts`), or
->   - it's symbol has an underscore prefix (e.g.: `_bar`, `_foo`).
->
->   These elements are not considered part of the public API, thus no stability is guaranteed for them.
-> - For usage of JSR resources, it is recommended to import the entire module with the main entrypoint, however it is also able to import part of the module with sub entrypoint if available, please visit the [file `jsr.jsonc`](./jsr.jsonc) property `exports` for available sub entrypoints.
-> - It is recommended to use this module with tag for immutability.
+| **Name** | **Path** | **Description** |
+|:--|:--|:--|
+| `.` | `./mod.ts` | Main |
 
-### 🛡️ Runtime Permissions
+#### 🛡️ Runtime Permissions
 
 - **Environment Variable (Deno: `env`):**
   - *Resources*
@@ -57,7 +60,7 @@ This module is a modified edition of the [Deno DNT](https://github.com/denoland/
 - **Network (Deno: `net`):**
   - *Resources*
 
-## 🧩 APIs
+#### 🧩 APIs
 
 - ```ts
   function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformerOptions): Promise<void>;
@@ -85,10 +88,10 @@ This module is a modified edition of the [Deno DNT](https://github.com/denoland/
 
 > [!NOTE]
 > - For the full or prettier documentation, can visit via:
->   - [Deno CLI `deno doc`](https://docs.deno.com/runtime/reference/cli/documentation_generator/)
+>   - [Deno CLI `deno doc`](https://docs.deno.com/runtime/reference/cli/doc/)
 >   - [JSR](https://jsr.io/@hugoalh/deno-nodejs-transformer)
 
-## ✍️ Examples
+#### ✍️ Examples
 
 - ```ts
   await invokeDenoNodeJSTransformer({
