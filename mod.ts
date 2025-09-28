@@ -10,6 +10,12 @@ import {
 	type FSWalkEntry
 } from "https://raw.githubusercontent.com/hugoalh/fs-es/v0.4.0/walk.ts";
 import {
+	build,
+	type LibName,
+	type ScriptTarget,
+	type SpecifierMappings
+} from "./_deps.ts";
+import {
 	refactorMetadata,
 	resolveEntrypoints,
 	type Metadata,
@@ -18,12 +24,6 @@ import {
 	resolveDNTShimsOptions,
 	type DenoNodeJSTransformerShimOptions
 } from "./_shims.ts";
-import {
-	build,
-	type LibName,
-	type ScriptTarget,
-	type SpecifierMappings
-} from "./deps.ts";
 export interface DenoNodeJSTransformerCopyEntriesOptions {
 	from: string | RegExp;
 	to: string;

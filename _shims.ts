@@ -1,7 +1,7 @@
 import type {
 	Shim,
 	ShimOptions
-} from "./deps.ts";
+} from "./_deps.ts";
 export interface DenoNodeJSTransformerShimOptions extends Omit<ShimOptions, "customDev" | "domException" | "timers"> {
 	/**
 	 * Shim `Blob` via `node:buffer`.
