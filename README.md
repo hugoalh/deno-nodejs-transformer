@@ -7,7 +7,7 @@
 
 Transform Deno code to NodeJS code.
 
-Currently, this is a modified edition of the [Deno DNT](https://github.com/denoland/dnt) which aim for:
+Currently, this is a modified edition of the [Deno DNT](https://github.com/denoland/dnt) which:
 
 - Always force with ECMAScript module
 - Improve file structure
@@ -15,24 +15,18 @@ Currently, this is a modified edition of the [Deno DNT](https://github.com/denol
 
 ## 🔰 Begin
 
-> [!NOTE]
-> - Use via other methods/ways are not officially supported.
+### Deno
 
-### ECMAScript
-
-|  | **Remote** | **JSR** |
-|:--|:-:|:-:|
-| **[Deno](https://deno.land/)** >= v2.5.2 | ✔️ | ✔️ |
+- **[Deno](https://deno.land/)** >= v2.5.2
 
 #### #️⃣ Sources
 
-- Remote
-  - GitHub Raw
-    ```
-    https://raw.githubusercontent.com/hugoalh/deno-nodejs-transformer/{Tag}/mod.ts
-    ```
+- GitHub Raw
+  ```
+  https://raw.githubusercontent.com/hugoalh/deno-nodejs-transformer/{Tag}/mod.ts
+  ```
   > [!NOTE]
-  > - It is possible to use via other sub paths, but do not use non public API if either:
+  > - It is possible to use via sub paths, but do not use any of these due to these are not considered part of the public API:
   >   - it's path has an underscore prefix (e.g.: `_foo.ts`, `_util/bar.ts`)
   >   - it is a benchmark or test file (e.g.: `foo.bench.ts`, `foo.test.ts`)
   >   - it's symbol has an underscore prefix (e.g.: `_bar`, `_foo`)
@@ -51,13 +45,13 @@ Currently, this is a modified edition of the [Deno DNT](https://github.com/denol
 
 #### 🛡️ Runtime Permissions
 
-- **Environment Variable (Deno: `env`):**
+- Environment Variable (`env`)
   - *Resources*
-- **File System - Read (Deno: `read`):**
+- File System - Read (`read`)
   - *Resources*
-- **File System - Write (Deno: `write`):**
+- File System - Write (`write`)
   - *Resources*
-- **Network (Deno: `net`):**
+- Network (`net`)
   - *Resources*
 
 #### 🧩 APIs
