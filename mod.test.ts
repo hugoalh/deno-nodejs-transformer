@@ -8,10 +8,6 @@ Deno.test("Main", {
 	}
 }, async () => {
 	await invokeDenoNodeJSTransformer({
-		copyEntries: [
-			/^LICENSE(?:[-\._][^\/\\]+)?\.md$/i,
-			/^README(?:[-\._][^\/\\]+)?\.md$/i
-		],
 		entrypointsScript: {
 			".": "./mod.ts"
 		},
@@ -21,7 +17,6 @@ Deno.test("Main", {
 			version: "0.8.0",
 			description: "Demo of Deno NodeJS Transformer.",
 			keywords: [
-				"dnt",
 				"test"
 			],
 			homepage: "https://github.com/hugoalh/deno-nodejs-transformer#readme",
@@ -40,6 +35,7 @@ Deno.test("Main", {
 			}
 		},
 		outputDirectory: "dist/npm",
-		outputDirectoryPreEmpty: true
+		outputDirectoryPreEmpty: true,
+		workspace: "_test"
 	});
 });
