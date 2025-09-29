@@ -15,6 +15,7 @@ import {
 	type ScriptTarget,
 	type SpecifierMappings
 } from "./_deps.ts";
+import { fixDenoDNTModification } from "./_fixes.ts";
 import {
 	refactorMetadata,
 	resolveEntrypoints,
@@ -125,12 +126,11 @@ export interface DenoNodeJSTransformerOptions {
 	 */
 	workspace?: string;
 }
-function chdirDispose(directory: string | URL) {
-	const original: string = Deno.cwd();
-	Deno.chdir(directory);
+function chdirDispose(from: string | URL, to: string | URL) {
+	Deno.chdir(to);
 	return {
 		[Symbol.dispose]() {
-			Deno.chdir(original);
+			Deno.chdir(from);
 		}
 	};
 }
@@ -151,9 +151,10 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 		shims,
 		target = "ES2022",
 		useTSLibHelper = false,
-		workspace = Deno.cwd()
+		workspace
 	}: DenoNodeJSTransformerOptions = options;
-	const copyEntriesPayload: readonly (readonly [string, string] | null)[] = (copyEntries.length > 0) ? await Array.fromAsync(await walk(workspace), ({ pathRelative }: FSWalkEntry): readonly [string, string] | null => {
+	const workspaceAbsolute = (typeof workspace === "undefined") ? Deno.cwd() : joinPath(Deno.cwd(), workspace);
+	const copyEntriesPayload: readonly (readonly [string, string] | null)[] = (copyEntries.length > 0) ? await Array.fromAsync(await walk(workspaceAbsolute), ({ pathRelative }: FSWalkEntry): readonly [string, string] | null => {
 		for (const copyEntry of copyEntries) {
 			if (typeof copyEntry === "string") {
 				if (copyEntry === pathRelative) {
@@ -174,7 +175,7 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 		}
 		return null;
 	}) : [];
-	using _ = chdirDispose(workspace);
+	using _ = chdirDispose(Deno.cwd(), workspaceAbsolute);
 	await ensureFSDir(outputDirectory);
 	if (outputDirectoryPreEmpty) {
 		await emptyFSDir(outputDirectory);
@@ -229,9 +230,7 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 		}
 	}
 	if (fixDenoDNTModifications) {
-		const regexpImportDNTPolyfills = /^import ".+?\/_dnt\.polyfills\.js";\r?\n/gm;
-		const regexpImportDNTShims = /^import .*?dntShim from ".+?\/_dnt\.shims\.js";\r?\n/gm;
-		const regexpShebangs = /^#!.+?\r?\n/g;
+		const jobs: Promise<void>[] = [];
 		for await (const { pathRelative } of await walk(outputDirectory, {
 			extensions: [".d.ts", ".js"],
 			includeDirectories: false,
@@ -242,31 +241,9 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 				/^deps[\\\/]/
 			]
 		})) {
-			const pathRelativeRoot: string = joinPath(outputDirectory, pathRelative);
-			const contextOriginal: string = await Deno.readTextFile(pathRelativeRoot);
-			let contextModified: string = structuredClone(contextOriginal);
-			// Shebang should only have at most 1, but no need to care in here.
-			const shebang: readonly string[] = Array.from(contextModified.matchAll(regexpShebangs), (match: RegExpExecArray): string => {
-				return match[0];
-			});
-			// DNT polyfills should only have at most 1 after deduplicate, but no need to care in here, likely engine fault.
-			const dntPolyfills: Set<string> = new Set<string>(Array.from(contextModified.matchAll(regexpImportDNTPolyfills), (match: RegExpExecArray): string => {
-				return match[0];
-			}));
-			// DNT shims should only have at most 1 after deduplicate, but no need to care in here, likely engine fault.
-			const dntShims: Set<string> = new Set<string>(Array.from(contextModified.matchAll(regexpImportDNTShims), (match: RegExpExecArray): string => {
-				return match[0];
-			}));
-			if (
-				dntPolyfills.size > 0 ||
-				dntShims.size > 0
-			) {
-				contextModified = `${shebang.join("")}${Array.from(dntPolyfills.values()).join("")}${Array.from(dntShims.values()).join("")}${contextModified.replaceAll(regexpShebangs, "").replaceAll(regexpImportDNTPolyfills, "").replaceAll(regexpImportDNTShims, "")}`;
-			}
-			if (contextModified !== contextOriginal) {
-				await Deno.writeTextFile(pathRelativeRoot, contextModified, { create: false });
-			}
+			jobs.push(fixDenoDNTModification(joinPath(workspaceAbsolute, outputDirectory, pathRelative)));
 		}
+		await Promise.all(jobs);
 	}
 	await refactorMetadata({
 		entrypoints: entrypointsFmt.metadata,
