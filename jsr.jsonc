@@ -56,5 +56,8 @@
 			"deno.jsonc",
 			"SECURITY.md"
 		]
-	}
+	},
+	"unstable": [
+		"raw-imports"
+	]
 }
