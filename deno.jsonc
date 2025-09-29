@@ -56,5 +56,10 @@
 		}
 	},
 	"unstable": [
+		"broadcast-channel",
+		"cron",
+		"kv",
+		"raw-imports",
+		"temporal"
 	]
 }
