@@ -56,7 +56,5 @@
 			"deno.jsonc",
 			"SECURITY.md"
 		]
-	},
-	"unstable": [
-	]
+	}
 }
