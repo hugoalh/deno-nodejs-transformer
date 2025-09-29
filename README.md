@@ -41,7 +41,7 @@ Currently, this is a modified edition of the [Deno DNT](https://github.com/denol
 
 | **Name** | **Path** | **Description** |
 |:--|:--|:--|
-| `.` | `./mod.ts` | Main |
+| `.` | `./mod.ts` | Default. |
 
 #### 🛡️ Runtime Permissions
 
