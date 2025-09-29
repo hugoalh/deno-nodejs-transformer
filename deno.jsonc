@@ -56,6 +56,5 @@
 		}
 	},
 	"unstable": [
-		"raw-imports"
 	]
 }
