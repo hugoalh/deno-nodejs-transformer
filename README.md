@@ -101,7 +101,6 @@ Currently, this is a modified edition of the [Deno DNT](https://github.com/denol
       version: "0.8.0",
       description: "Demo of Deno NodeJS Transformer.",
       keywords: [
-        "dnt",
         "test"
       ],
       homepage: "https://github.com/hugoalh/deno-nodejs-transformer#readme",
