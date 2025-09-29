@@ -18,7 +18,6 @@ Currently, this is a modified edition of the [Deno DNT](https://github.com/denol
 ### Deno
 
 - **[Deno](https://deno.land/)** >= v2.5.2
-  - Raw Imports (`raw-imports`)
 
 #### #️⃣ Sources
 
