@@ -188,22 +188,19 @@ export function resolveEntrypoints(executables: Record<string, string>, scripts:
 		}
 	};
 }
-export interface RefactorMetadataParameters {
-	entrypoints: MetadataEntrypoints;
-	metadataIndentation?: number | string;
-	metadataKeysSort?: readonly string[];
-	metadataPath: string;
+export interface RefactorMetadataOptions {
+	indentation?: number | string;
+	sortKeys?: readonly string[];
 }
-export async function refactorMetadata({
-	entrypoints,
-	metadataIndentation = "\t",
-	metadataKeysSort = metadataKeysDefaultSort,
-	metadataPath
-}: RefactorMetadataParameters): Promise<void> {
-	const metadata = JSON.parse(await Deno.readTextFile(metadataPath));
-	await Deno.writeTextFile(metadataPath, JSON.stringify(sortCollectionByKeys({
+export async function refactorMetadata(filePath: string | URL, entrypoints: MetadataEntrypoints, options: RefactorMetadataOptions = {}): Promise<void> {
+	const {
+		indentation = "\t",
+		sortKeys = metadataKeysDefaultSort
+	}: RefactorMetadataOptions = options;
+	const metadata = JSON.parse(await Deno.readTextFile(filePath));
+	await Deno.writeTextFile(filePath, JSON.stringify(sortCollectionByKeys({
 		...metadata,
 		...entrypoints,
 		type: "module"
-	}, { specialEntriesKey: metadataKeysSort }), undefined, metadataIndentation));
+	}, { specialEntriesKey: sortKeys }), undefined, indentation));
 }

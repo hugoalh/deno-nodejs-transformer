@@ -245,10 +245,7 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 		}
 		await Promise.all(jobs);
 	}
-	await refactorMetadata({
-		entrypoints: entrypointsFmt.metadata,
-		metadataPath: joinPath(outputDirectory, "package.json")
-	});
+	await refactorMetadata(joinPath(outputDirectory, "package.json"), entrypointsFmt.metadata);
 	for (const copyEntryPayload of copyEntriesPayload) {
 		if (copyEntryPayload !== null) {
 			const [from, to] = copyEntryPayload;
