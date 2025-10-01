@@ -126,13 +126,14 @@ export interface DenoNodeJSTransformerOptions {
 	 */
 	workspace?: string;
 }
-function chdirDispose(from: string | URL, to: string | URL) {
-	Deno.chdir(to);
-	return {
-		[Symbol.dispose]() {
-			Deno.chdir(from);
-		}
-	};
+class ChdirDispose {
+	#from: string = Deno.cwd();
+	constructor(to: string | URL) {
+		Deno.chdir(to);
+	}
+	[Symbol.dispose](): void {
+		Deno.chdir(this.#from);
+	}
 }
 export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformerOptions): Promise<void> {
 	const {
@@ -153,7 +154,7 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 		useTSLibHelper = false,
 		workspace
 	}: DenoNodeJSTransformerOptions = options;
-	const workspaceAbsolute = (typeof workspace === "undefined") ? Deno.cwd() : joinPath(Deno.cwd(), workspace);
+	const workspaceAbsolute: string = (typeof workspace === "undefined") ? Deno.cwd() : joinPath(Deno.cwd(), workspace);
 	const copyEntriesPayload: readonly (readonly [string, string] | null)[] = (copyEntries.length > 0) ? await Array.fromAsync(await walk(workspaceAbsolute), ({ pathRelative }: FSWalkEntry): readonly [string, string] | null => {
 		for (const copyEntry of copyEntries) {
 			if (typeof copyEntry === "string") {
@@ -175,7 +176,7 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 		}
 		return null;
 	}) : [];
-	using _ = chdirDispose(Deno.cwd(), workspaceAbsolute);
+	using _: ChdirDispose = new ChdirDispose(workspaceAbsolute);
 	await ensureFSDir(outputDirectory);
 	if (outputDirectoryPreEmpty) {
 		await emptyFSDir(outputDirectory);
