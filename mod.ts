@@ -67,26 +67,18 @@ export interface DenoNodeJSTransformerOptions {
 	lib?: readonly LibName[];
 	/**
 	 * Remap specifiers.
-	 * 
-	 * This can be redirect to a NodeJS specific file:
-	 * 
+	 * @example Redirect to a NodeJS specific file.
 	 * ```ts
 	 * {
-	 *   mappings: {
-	 *     "./file.deno.ts": "./file.node.ts"
-	 *   }
+	 *   "./file.deno.ts": "./file.node.ts"
 	 * }
 	 * ```
-	 * 
-	 * Or remap to an NPM package:
-	 * 
+	 * @example Remap to an NPM package.
 	 * ```ts
 	 * {
-	 *   mappings: {
-	 *     "https://deno.land/x/code_block_writer@11.0.0/mod.ts": {
-	 *       name: "code-block-writer",
-	 *       version: "^11.0.0"
-	 *     }
+	 *   "https://deno.land/x/code_block_writer@11.0.0/mod.ts": {
+	 *     name: "code-block-writer",
+	 *     version: "^11.0.0"
 	 *   }
 	 * }
 	 * ```
