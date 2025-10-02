@@ -13,37 +13,11 @@ Currently, this is a modified edition of the [Deno DNT](https://github.com/denol
 - Improve file structure
 - Unify configuration
 
-## 🔰 Begin
-
-### Deno
+## ▶️ Begin - Deno
 
 - **[Deno](https://deno.land/)** >= v2.5.2
 
-#### #️⃣ Sources
-
-- GitHub Raw
-  ```
-  https://raw.githubusercontent.com/hugoalh/deno-nodejs-transformer/{Tag}/mod.ts
-  ```
-  > [!NOTE]
-  > - It is possible to use via sub paths, but do not use any of these due to these are not considered part of the public API:
-  >   - it's path has an underscore prefix (e.g.: `_foo.ts`, `_util/bar.ts`)
-  >   - it is a benchmark or test file (e.g.: `foo.bench.ts`, `foo.test.ts`)
-  >   - it's symbol has an underscore prefix (e.g.: `_bar`, `_foo`)
-- JSR
-  ```
-  jsr:@hugoalh/deno-nodejs-transformer[@{Tag}]
-  ```
-  > [!NOTE]
-  > - It is recommended to include tag for immutability.
-
-#### ⤵️ Entrypoints
-
-| **Name** | **Path** | **Description** |
-|:--|:--|:--|
-| `.` | `./mod.ts` | Default. |
-
-#### 🛡️ Runtime Permissions
+### 🛡️ Runtime Permissions
 
 - Environment Variable (`env`)
   - *Resources*
@@ -54,7 +28,31 @@ Currently, this is a modified edition of the [Deno DNT](https://github.com/denol
 - Network (`net`)
   - *Resources*
 
-#### 🧩 APIs
+### #️⃣ Sources
+
+- GitHub Raw
+  ```
+  https://raw.githubusercontent.com/hugoalh/deno-nodejs-transformer/{Tag}/mod.ts
+  ```
+- JSR
+  ```
+  jsr:@hugoalh/deno-nodejs-transformer[@{Tag}]
+  ```
+
+> [!NOTE]
+> - It is recommended to include tag for immutability.
+> - These are not part of the public API hence should not be used:
+>   - Benchmark/Test file (e.g.: `example.bench.ts`, `example.test.ts`).
+>   - Entrypoint name or path include any underscore prefix (e.g.: `_example.ts`, `foo/_example.ts`).
+>   - Identifier/Namespace/Symbol include any underscore prefix (e.g.: `_example`, `Foo._example`).
+
+### ⤵️ Entrypoints
+
+| **Name** | **Path** | **Description** |
+|:--|:--|:--|
+| `.` | `./mod.ts` | Default. |
+
+### 🧩 APIs
 
 - ```ts
   function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformerOptions): Promise<void>;
@@ -85,7 +83,7 @@ Currently, this is a modified edition of the [Deno DNT](https://github.com/denol
 >   - [Deno CLI `deno doc`](https://docs.deno.com/runtime/reference/cli/doc/)
 >   - [JSR](https://jsr.io/@hugoalh/deno-nodejs-transformer)
 
-#### ✍️ Examples
+### ✍️ Examples
 
 - ```ts
   await invokeDenoNodeJSTransformer({
