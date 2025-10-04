@@ -41,7 +41,7 @@ Currently, this is a modified edition of the [Deno DNT](https://github.com/denol
 
 > [!NOTE]
 > - It is recommended to include tag for immutability.
-> - These are not part of the public API hence should not be used:
+> - These are not part of the public APIs hence should not be used:
 >   - Benchmark/Test file (e.g.: `example.bench.ts`, `example.test.ts`).
 >   - Entrypoint name or path include any underscore prefix (e.g.: `_example.ts`, `foo/_example.ts`).
 >   - Identifier/Namespace/Symbol include any underscore prefix (e.g.: `_example`, `Foo._example`).
@@ -55,11 +55,11 @@ Currently, this is a modified edition of the [Deno DNT](https://github.com/denol
 ### 🧩 APIs
 
 - ```ts
-  function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformerOptions): Promise<void>;
+  function transform(options: TransformOptions): Promise<void>;
   ```
 - ```ts
-  interface DenoNodeJSTransformerOptions {
-    copyEntries?: readonly (string | RegExp | DenoNodeJSTransformerCopyEntriesOptions)[];
+  interface TransformOptions {
+    copyEntries?: readonly (string | RegExp | TransformCopyEntriesOptions)[];
     entrypointsExecutable?: Record<string, string>;
     entrypointsScript?: Record<string, string>;
     fixDenoDNTModifications?: boolean;
@@ -71,7 +71,7 @@ Currently, this is a modified edition of the [Deno DNT](https://github.com/denol
     metadata: Metadata;
     outputDirectory?: string;
     outputDirectoryPreEmpty?: boolean;
-    shims?: DenoNodeJSTransformerShimOptions;
+    shims?: TransformShimOptions;
     target?: ScriptTarget;
     useTSLibHelper?: boolean;
     workspace?: string;
@@ -86,7 +86,7 @@ Currently, this is a modified edition of the [Deno DNT](https://github.com/denol
 ### ✍️ Examples
 
 - ```ts
-  await invokeDenoNodeJSTransformer({
+  await transform({
     copyEntries: [
       /^LICENSE(?:[-\._][^\/\\]+)?\.md$/i,
       /^README(?:[-\._][^\/\\]+)?\.md$/i

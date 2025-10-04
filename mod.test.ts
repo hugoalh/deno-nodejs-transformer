@@ -1,4 +1,4 @@
-import { invokeDenoNodeJSTransformer } from "./mod.ts";
+import { transform } from "./mod.ts";
 Deno.test("Main", {
 	permissions: {
 		env: true,
@@ -7,7 +7,7 @@ Deno.test("Main", {
 		write: true
 	}
 }, async () => {
-	await invokeDenoNodeJSTransformer({
+	await transform({
 		entrypointsScript: {
 			".": "./mod.ts"
 		},

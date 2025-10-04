@@ -23,17 +23,17 @@ import {
 } from "./_metadata.ts";
 import {
 	resolveDNTShimsOptions,
-	type DenoNodeJSTransformerShimOptions
+	type TransformShimOptions
 } from "./_shims.ts";
-export interface DenoNodeJSTransformerCopyEntriesOptions {
+export interface TransformCopyEntriesOptions {
 	from: string | RegExp;
 	to: string;
 }
-export interface DenoNodeJSTransformerOptions {
+export interface TransformOptions {
 	/**
 	 * Copy entries as is after the transform, by relative path under the {@link workspace workspace}.
 	 */
-	copyEntries?: readonly (string | RegExp | DenoNodeJSTransformerCopyEntriesOptions)[];
+	copyEntries?: readonly (string | RegExp | TransformCopyEntriesOptions)[];
 	/**
 	 * Entrypoints of the executable.
 	 */
@@ -101,7 +101,7 @@ export interface DenoNodeJSTransformerOptions {
 	/**
 	 * Shims.
 	 */
-	shims?: DenoNodeJSTransformerShimOptions;
+	shims?: TransformShimOptions;
 	/**
 	 * Target ECMAScript version.
 	 * @default {"ES2022"}
@@ -127,7 +127,7 @@ class ChdirDispose {
 		Deno.chdir(this.#from);
 	}
 }
-export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformerOptions): Promise<void> {
+export async function transform(options: TransformOptions): Promise<void> {
 	const {
 		copyEntries = [],
 		entrypointsExecutable = {},
@@ -145,7 +145,7 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 		target = "ES2022",
 		useTSLibHelper = false,
 		workspace
-	}: DenoNodeJSTransformerOptions = options;
+	}: TransformOptions = options;
 	const workspaceAbsolute: string = (typeof workspace === "undefined") ? Deno.cwd() : joinPath(Deno.cwd(), workspace);
 	const copyEntriesPayload: readonly (readonly [string, string] | null)[] = (copyEntries.length > 0) ? await Array.fromAsync(await walk(workspaceAbsolute), ({ pathRelative }: FSWalkEntry): readonly [string, string] | null => {
 		for (const copyEntry of copyEntries) {
@@ -246,4 +246,4 @@ export async function invokeDenoNodeJSTransformer(options: DenoNodeJSTransformer
 		}
 	}
 }
-export default invokeDenoNodeJSTransformer;
+export default transform;

@@ -2,7 +2,7 @@ import type {
 	Shim,
 	ShimOptions
 } from "./_deps.ts";
-export interface DenoNodeJSTransformerShimOptions extends Omit<ShimOptions, "customDev" | "domException" | "timers"> {
+export interface TransformShimOptions extends Omit<ShimOptions, "customDev" | "domException" | "timers"> {
 	/**
 	 * Shim `Blob` via `node:buffer`.
 	 * 
@@ -55,10 +55,10 @@ export interface DenoNodeJSTransformerShimOptions extends Omit<ShimOptions, "cus
 }
 /**
  * Resolve to the DNT shims options.
- * @param {DenoNodeJSTransformerShimOptions} [options={}] Shims options.
+ * @param {TransformShimOptions} [options={}] Shims options.
  * @returns {ShimOptions} DNT shims options.
  */
-export function resolveDNTShimsOptions(options: DenoNodeJSTransformerShimOptions = {}): ShimOptions {
+export function resolveDNTShimsOptions(options: TransformShimOptions = {}): ShimOptions {
 	return {
 		blob: options.blob ?? false,
 		crypto: options.crypto ?? false,

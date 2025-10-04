@@ -111,11 +111,11 @@ const metadataKeysDefaultSort: readonly string[] = [
 	"private",
 	"publishConfig"
 ];
-interface DenoNodeJSTransformerEntrypointPaths {
+interface MetadataEntrypointPaths {
 	types?: string;
 	default: string;
 }
-function resolveEntrypointPaths(path: string, declaration: boolean): DenoNodeJSTransformerEntrypointPaths {
+function resolveEntrypointPaths(path: string, declaration: boolean): MetadataEntrypointPaths {
 	if (!path.startsWith("./")) {
 		throw new Error(`Entrypoint path must start with \`./\`!`);
 	}
@@ -131,7 +131,7 @@ export function resolveEntrypoints(executables: Record<string, string>, scripts:
 	if (Object.entries(executables).length === 0 && Object.entries(scripts).length === 0) {
 		throw new ReferenceError(`Entrypoints are not defined!`);
 	}
-	const executablesFmt: Record<string, DenoNodeJSTransformerEntrypointPaths> = Object.fromEntries(Object.entries(executables).map(([name, path]: readonly [string, string]): readonly [string, DenoNodeJSTransformerEntrypointPaths] => {
+	const executablesFmt: Record<string, MetadataEntrypointPaths> = Object.fromEntries(Object.entries(executables).map(([name, path]: readonly [string, string]): readonly [string, MetadataEntrypointPaths] => {
 		if (name.trim() !== name) {
 			throw new Error(`Executable name is not well trimmed!`);
 		}
@@ -141,7 +141,7 @@ export function resolveEntrypoints(executables: Record<string, string>, scripts:
 		return [name, resolveEntrypointPaths(path, declaration)];
 	}));
 
-	const scriptsFmt: Record<string, DenoNodeJSTransformerEntrypointPaths> = Object.fromEntries(Object.entries(scripts).map(([name, path]: readonly [string, string]): readonly [string, DenoNodeJSTransformerEntrypointPaths] => {
+	const scriptsFmt: Record<string, MetadataEntrypointPaths> = Object.fromEntries(Object.entries(scripts).map(([name, path]: readonly [string, string]): readonly [string, MetadataEntrypointPaths] => {
 		if (name.trim() !== name) {
 			throw new Error(`Script name is not well trimmed!`);
 		}
@@ -153,12 +153,12 @@ export function resolveEntrypoints(executables: Record<string, string>, scripts:
 		}
 		return [name, resolveEntrypointPaths(path, declaration)];
 	}));
-	const metadataBin = sortCollectionByKeys(Object.fromEntries(Object.entries(executablesFmt).map(([name, { default: pathDefault }]: readonly [string, DenoNodeJSTransformerEntrypointPaths]): readonly [string, string] => {
+	const metadataBin = sortCollectionByKeys(Object.fromEntries(Object.entries(executablesFmt).map(([name, { default: pathDefault }]: readonly [string, MetadataEntrypointPaths]): readonly [string, string] => {
 		return [name, pathDefault];
 	})));
-	const matadataExports = sortCollectionByKeys(Object.fromEntries(Object.entries(scriptsFmt).map(([name, paths]: readonly [string, DenoNodeJSTransformerEntrypointPaths]) => {
+	const matadataExports = sortCollectionByKeys(Object.fromEntries(Object.entries(scriptsFmt).map(([name, paths]: readonly [string, MetadataEntrypointPaths]) => {
 		return [name, { import: paths }];
-	})) as Record<string, { import: DenoNodeJSTransformerEntrypointPaths; }>, {
+	})) as Record<string, { import: MetadataEntrypointPaths; }>, {
 		restPlaceFirst: true,
 		specialEntriesKey: ["."]
 	});
