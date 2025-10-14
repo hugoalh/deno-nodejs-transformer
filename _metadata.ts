@@ -120,8 +120,8 @@ function resolveEntrypointPaths(path: string, declaration: boolean): MetadataEnt
 		throw new Error(`Entrypoint path must start with \`./\`!`);
 	}
 	return {
-		types: declaration ? path.replace(/\.(?:m[jt]s|[jt]s|[jt]sx)$/, ".d.ts") : undefined,
-		default: path.replace(/\.(?:m[jt]s|[jt]s|[jt]sx)$/, ".js")
+		types: declaration ? path.replace(/\.tsx?$/, ".d.ts") : undefined,
+		default: path.replace(/\.tsx?$/, ".js")
 	};
 }
 export function resolveEntrypoints(executables: Record<string, string>, scripts: Record<string, string>, declaration: boolean): {
