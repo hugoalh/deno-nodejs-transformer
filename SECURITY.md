@@ -6,8 +6,6 @@
 |:-:|:-:|:-:|:-:|
 | v0.8.X | 2025-09-29 | N/A | *Unknown* |
 | v0.7.X | 2025-04-05 | N/A | 2026-03-31 |
-| v0.7.0-fork.X | 2024-12-12 | N/A | 2025-12-31 |
-| v0.6.X | 2024-11-28 | N/A | 2025-12-31 |
 
 > [!NOTE]
 > - Format of the date is according to the specification ISO 8601.
