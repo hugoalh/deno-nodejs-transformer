@@ -98,7 +98,6 @@ export function getPackageJson({
 		: packageJsonObj.scripts ?? {};
 	const mainExport = exports.length > 0
 		? {
-			// module: includeEsModule ? `./esm/${exports[0].path}` : undefined,
 			module: includeEsModule ? `./${exports[0].path}` : undefined,
 			main: includeScriptModule ? `./script/${exports[0].path}` : undefined,
 			types: includeDeclarations ? `./types/${exports[0].types}` : undefined,
@@ -106,7 +105,6 @@ export function getPackageJson({
 		: {};
 	const binaryExport = binaries.length > 0
 		? {
-			// bin: Object.fromEntries(binaries.map((b) => [b.name, `./esm/${b.path}`])),
 			bin: Object.fromEntries(binaries.map((b) => [b.name, `./${b.path}`])),
 		}
 		: {};
@@ -123,7 +121,6 @@ export function getPackageJson({
 						...(Object.fromEntries(exports.map((e) => {
 							return [e.name, {
 								import: includeEsModule
-									// ? getPathOrTypesObject(`./esm/${e.path}`)
 									? getPathOrTypesObject(`./${e.path}`)
 									: undefined,
 								require: includeScriptModule

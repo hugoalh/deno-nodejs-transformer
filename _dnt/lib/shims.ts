@@ -104,7 +104,6 @@ function getDenoShim(): Shim {
 	return {
 		package: {
 			name: "@deno/shim-deno",
-			// version: "~0.18.0",
 			version: "^0.19.2",
 		},
 		globalNames: ["Deno"],
@@ -115,7 +114,6 @@ function getDenoTestShim(): Shim {
 	return {
 		package: {
 			name: "@deno/shim-deno-test",
-			// version: "~0.5.0",
 			version: "^0.5.0",
 		},
 		globalNames: ["Deno"],
@@ -126,7 +124,6 @@ function getCryptoShim(): Shim {
 	return {
 		package: {
 			name: "@deno/shim-crypto",
-			// version: "~0.3.1",
 			version: "^0.3.1",
 		},
 		globalNames: [
@@ -181,7 +178,6 @@ function getPromptsShim(): Shim {
 	return {
 		package: {
 			name: "@deno/shim-prompts",
-			// version: "~0.1.0",
 			version: "^0.1.1",
 		},
 		globalNames: ["alert", "confirm", "prompt"],
@@ -192,7 +188,6 @@ function getTimersShim(): Shim {
 	return {
 		package: {
 			name: "@deno/shim-timers",
-			// version: "~0.1.0",
 			version: "^0.1.0",
 		},
 		globalNames: ["setInterval", "setTimeout"],
@@ -245,7 +240,6 @@ function getWeakRefShim(): Shim {
 	return {
 		package: {
 			name: "@deno/sham-weakref",
-			// version: "~0.1.0",
 			version: "^0.1.0",
 		},
 		globalNames: ["WeakRef", typeOnly("WeakRefConstructor")],

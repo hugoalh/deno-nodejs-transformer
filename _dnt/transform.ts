@@ -7,7 +7,7 @@
  * @module
  */
 
-import { instantiate } from "./lib/pkg/dnt_wasm_generated.ts";
+import * as wasm from "./lib/pkg/dnt_wasm.js";
 import type { ScriptTarget } from "./lib/types.ts";
 import { valueToUrl } from "./lib/utils.ts";
 
@@ -76,7 +76,6 @@ export interface TransformOptions {
 	/// Path or url to the import map.
 	importMap?: string;
 	configFile?: string;
-	internalWasmUrl?: string;
 	cwd: string;
 }
 
@@ -110,7 +109,7 @@ export interface OutputFile {
 /** Analyzes the provided entry point to get all the dependended on modules and
  * outputs canonical TypeScript code in memory. The output of this function
  * can then be sent to the TypeScript compiler or a bundler for further processing. */
-export async function transform(
+export function transform(
 	options: TransformOptions,
 ): Promise<TransformOutput> {
 	if (options.entryPoints.length === 0) {
@@ -132,10 +131,7 @@ export async function transform(
 			? undefined
 			: valueToUrl(options.importMap),
 	};
-	const wasmFuncs = await instantiate({
-		url: options.internalWasmUrl ? new URL(options.internalWasmUrl) : undefined,
-	});
-	return wasmFuncs.transform(newOptions);
+	return wasm.transform(newOptions);
 }
 
 type SerializableMappedSpecifier = {

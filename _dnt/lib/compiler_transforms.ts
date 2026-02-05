@@ -1,7 +1,7 @@
 //deno-lint-ignore-file -- Vendor
 // Copyright 2018-2024 the Deno authors. MIT license.
 
-import { ts } from "jsr:@ts-morph/bootstrap@^0.26.1";
+import { ts } from "jsr:@ts-morph/bootstrap@^0.27.0";
 
 // transform `import.meta.url` to a replacement that works in script modules
 export const transformImportMeta: ts.TransformerFactory<ts.SourceFile> = (
