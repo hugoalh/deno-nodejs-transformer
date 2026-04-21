@@ -2,8 +2,9 @@
 
 [**⚖️** MIT](./LICENSE.md)
 
-[![GitHub: hugoalh/deno-nodejs-transformer](https://img.shields.io/github/v/release/hugoalh/deno-nodejs-transformer?label=hugoalh/deno-nodejs-transformer&labelColor=181717&logo=github&logoColor=ffffff&sort=semver&style=flat "GitHub: hugoalh/deno-nodejs-transformer")](https://github.com/hugoalh/deno-nodejs-transformer)
-[![JSR: @hugoalh/deno-nodejs-transformer](https://img.shields.io/jsr/v/@hugoalh/deno-nodejs-transformer?label=@hugoalh/deno-nodejs-transformer&labelColor=F7DF1E&logo=jsr&logoColor=000000&style=flat "JSR: @hugoalh/deno-nodejs-transformer")](https://jsr.io/@hugoalh/deno-nodejs-transformer)
+🔗
+[GitHub](https://github.com/hugoalh/deno-nodejs-transformer)
+[JSR](https://jsr.io/@hugoalh/deno-nodejs-transformer)
 
 Transform Deno code to NodeJS code.
 
