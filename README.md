@@ -4,7 +4,7 @@
 
 🔗
 [GitHub](https://github.com/hugoalh/deno-nodejs-transformer)
-[JSR](https://jsr.io/@hugoalh/deno-nodejs-transformer)
+● [JSR](https://jsr.io/@hugoalh/deno-nodejs-transformer)
 
 Transform Deno code to NodeJS code.
 
@@ -21,13 +21,9 @@ Currently, this is a modified edition of the [Deno DNT](https://github.com/denol
 ### 🛡️ Runtime Permissions
 
 - Environment Variable (`env`)
-  - *Resources*
 - File System - Read (`read`)
-  - *Resources*
 - File System - Write (`write`)
-  - *Resources*
 - Network (`net`)
-  - *Resources*
 
 ### #️⃣ Sources
 
