@@ -25,7 +25,7 @@ Currently, this is a modified edition of the [Deno DNT](https://github.com/denol
 - File System - Write (`write`)
 - Network (`net`)
 
-### #️⃣ Sources
+### #️⃣ Sources & Entrypoints
 
 - GitHub Raw
   ```
@@ -36,18 +36,16 @@ Currently, this is a modified edition of the [Deno DNT](https://github.com/denol
   jsr:@hugoalh/deno-nodejs-transformer[@{Tag}]
   ```
 
+| **Name** | **Path** | **Description** |
+|:--|:--|:--|
+| `.` | `./mod.ts` | Default. |
+
 > [!NOTE]
 > - It is recommended to include tag for immutability.
 > - These are not part of the public APIs hence should not be used:
 >   - Benchmark/Test file (e.g.: `example.bench.ts`, `example.test.ts`).
 >   - Entrypoint name or path include any underscore prefix (e.g.: `_example.ts`, `foo/_example.ts`).
 >   - Identifier/Namespace/Symbol include any underscore prefix (e.g.: `_example`, `Foo._example`).
-
-### ⤵️ Entrypoints
-
-| **Name** | **Path** | **Description** |
-|:--|:--|:--|
-| `.` | `./mod.ts` | Default. |
 
 ### 🧩 APIs
 
