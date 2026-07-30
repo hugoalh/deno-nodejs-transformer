@@ -598,10 +598,10 @@ export async function build(options: BuildOptions): Promise<void> {
 					: [],
 			},
 		});
-		writeFile(
+		/* writeFile(
 			joinPath(esmOutDir, "package.json"),
 			`{\n  "type": "module"\n}\n`,
-		);
+		); */
 	}
 
 	// emit the script files

@@ -168,7 +168,7 @@ export async function transform(options: TransformOptions): Promise<void> {
 					return [pathRelative, joinPath(outputDirectory, (
 						copyEntry.to.endsWith("/") ||
 						copyEntry.to.endsWith("\\")
-					) ? joinPath(copyEntry.to.slice(0, copyEntry.to.length - 1), getPathBasename(pathRelative)) : copyEntry.to)];
+					) ? joinPath(copyEntry.to.slice(0, - 1), getPathBasename(pathRelative)) : copyEntry.to)];
 				}
 			}
 		}
