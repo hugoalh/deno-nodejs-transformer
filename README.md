@@ -3,7 +3,8 @@
 [**⚖️** MIT](./LICENSE.md)
 
 🔗
-[GitHub](https://github.com/hugoalh/deno-nodejs-transformer)
+[DistBoard @hugoalh](https://hugoalh.github.io/distboard/deno_nodejs_transformer)
+● [GitHub](https://github.com/hugoalh/deno-nodejs-transformer)
 ● [JSR](https://jsr.io/@hugoalh/deno-nodejs-transformer)
 
 Transform Deno code to NodeJS code.
@@ -16,7 +17,7 @@ Currently, this is a modified edition of the [Deno DNT](https://github.com/denol
 
 ## ▶️ Begin - Deno
 
-- **[Deno](https://deno.land/)** >= v2.5.2
+- **[Deno](https://deno.land/)** >= v2.9.0
 
 ### 🛡️ Runtime Permissions
 
