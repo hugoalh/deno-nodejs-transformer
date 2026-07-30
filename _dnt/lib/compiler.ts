@@ -1,7 +1,7 @@
 //deno-lint-ignore-file -- Vendor
 // Copyright 2018-2024 the Deno authors. MIT license.
 
-import { ts } from "jsr:@ts-morph/bootstrap@^0.27.0";
+import { ts } from "jsr:@ts-morph/bootstrap@^0.29.0";
 import { resolve as resolvePath } from "node:path";
 import type { ScriptTarget } from "./types.ts";
 
@@ -45,6 +45,31 @@ export function getCompilerScriptTarget(target: ScriptTarget) {
 			return ts.ScriptTarget.Latest;
 		default:
 			throw new Error(`Unknown target compiler option: ${target}`);
+	}
+}
+
+/** How JSX constructs are emitted. See https://www.typescriptlang.org/tsconfig/#jsx */
+export type JsxEmit =
+	| "preserve"
+	| "react"
+	| "react-native"
+	| "react-jsx"
+	| "react-jsxdev";
+
+export function getCompilerJsxEmit(jsx: JsxEmit) {
+	switch (jsx) {
+		case "preserve":
+			return ts.JsxEmit.Preserve;
+		case "react":
+			return ts.JsxEmit.React;
+		case "react-native":
+			return ts.JsxEmit.ReactNative;
+		case "react-jsx":
+			return ts.JsxEmit.ReactJSX;
+		case "react-jsxdev":
+			return ts.JsxEmit.ReactJSXDev;
+		default:
+			throw new Error(`Unknown jsx compiler option: ${jsx}`);
 	}
 }
 
@@ -164,7 +189,7 @@ export function getCompilerLibOption(target: ScriptTarget): LibName[] {
 	}
 }
 
-export function libNamesToCompilerOption(names: readonly LibName[]) {
+export function libNamesToCompilerOption(names: LibName[]) {
 	const libFileNames: string[] = [];
 	const libMap = (ts as any).libMap as Map<string, string>;
 	for (const name of names) {

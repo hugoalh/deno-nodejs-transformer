@@ -7,18 +7,39 @@
  * @module
  */
 
+import { existsSync } from "jsr:@std/fs@^1.0.24/exists";
+import {
+	isAbsolute as isPathAbsolute,
+	resolve as resolvePath,
+} from "node:path";
+import { pathToFileURL } from "node:url";
 import * as wasm from "./lib/pkg/dnt_wasm.js";
-import type { ScriptTarget } from "./lib/types.ts";
-import { valueToUrl } from "./lib/utils.ts";
+import type {
+	PolyfillName,
+	ScriptTarget
+} from "./lib/types.ts";
+import {
+	standardizePath,
+	valueToUrl
+} from "./lib/utils.ts";
 
 /** Specifier to specifier mappings. */
 export interface SpecifierMappings {
-	/** Map a specifier to another module or npm package. */
+	/** Map a specifier to another module or npm package.
+	 *
+	 * The specifier may be a path, url, or a bare specifier that's resolved
+	 * via the config file's import map (ex. `my-lib`).
+	 */
 	[specifier: string]: PackageMappedSpecifier | string;
 }
 
 export interface PackageMappedSpecifier {
-	/** Name of the npm package specifier to map to. */
+	/** Name of the npm package specifier to map to.
+	 *
+	 * @remarks An `@types/` package is imported by the name of the package it
+	 * provides the declarations for, since TypeScript errors when a
+	 * declaration file package is imported directly.
+	 */
 	name: string;
 	/** Version to use in the package.json file.
 	 *
@@ -68,14 +89,39 @@ export interface ModuleShim {
 
 export interface TransformOptions {
 	entryPoints: string[];
+	/** Entry points that are only used as an npm binary, which is a subset
+	 * of the entry points. */
+	binEntryPoints?: string[];
 	testEntryPoints?: string[];
 	shims?: Shim[];
 	testShims?: Shim[];
 	mappings?: SpecifierMappings;
 	target: ScriptTarget;
+	/** Explicitly enables or disables polyfills by name, taking precedence
+	 * over what `target` implies.
+	 */
+	polyfills?: Partial<Record<PolyfillName, boolean>>;
 	/// Path or url to the import map.
 	importMap?: string;
-	configFile?: string;
+	/** Path or url to a deno.json.
+	 *
+	 * When not specified, a deno.json is auto-discovered by searching upwards
+	 * from the entry points.
+	 *
+	 * Specify `false` to disable the auto-discovery, which also disables
+	 * discovering a package.json and deno.lock.
+	 */
+	configFile?: string | false;
+	/**
+	 * Errors when the deno lock file would need to be updated in order to
+	 * transform (ex. a dependency is not in it).
+	 *
+	 * Leave this undefined to use the `lock.frozen` setting in the deno.json file.
+	 */
+	frozenLockfile?: boolean;
+	/** Path or file url to the directory that the relative paths in these
+	 * options resolve from and that a config file, `deno.lock`, and
+	 * `node_modules` directory are discovered relative to. */
 	cwd: string;
 }
 
@@ -93,6 +139,19 @@ export interface TransformOutput {
 	main: TransformOutputEnvironment;
 	test: TransformOutputEnvironment;
 	warnings: string[];
+	/** Path of the config file that was auto-discovered by searching upwards
+	 * from the entry points (or the cwd when there are no local entry points).
+	 *
+	 * This is `undefined` when no config file was found, when one was
+	 * explicitly provided, or when auto-discovery is disabled.
+	 */
+	discoveredConfigFile?: string;
+	/** Packages that provide the type declarations of a mapped dependency
+	 * (ex. an `@types/` package specified by an `X-TypeScript-Types` header).
+	 */
+	typesDependencies: Dependency[];
+	/** Output files that are only reachable from a binary entrypoint. */
+	binOnlyFiles: string[];
 }
 
 export interface TransformOutputEnvironment {
@@ -115,23 +174,55 @@ export function transform(
 	if (options.entryPoints.length === 0) {
 		throw new Error("Specify one or more entry points.");
 	}
+	// all the relative paths in the options resolve from here
+	const cwd = standardizePath(options.cwd, Deno.cwd());
 	const newOptions = {
 		...options,
 		mappings: Object.fromEntries(
 			Object.entries(options.mappings ?? {}).map(([key, value]) => {
-				return [valueToUrl(key), mapMappedSpecifier(value)];
+				return [mapMappingKey(key, cwd), mapMappedSpecifier(value, cwd)];
 			}),
 		),
-		entryPoints: options.entryPoints.map(valueToUrl),
-		testEntryPoints: (options.testEntryPoints ?? []).map(valueToUrl),
-		shims: (options.shims ?? []).map(mapShim),
-		testShims: (options.testShims ?? []).map(mapShim),
+		entryPoints: options.entryPoints.map((e) => valueToUrl(e, cwd)),
+		binEntryPoints: (options.binEntryPoints ?? []).map((e) =>
+			valueToUrl(e, cwd)
+		),
+		testEntryPoints: (options.testEntryPoints ?? []).map((e) =>
+			valueToUrl(e, cwd)
+		),
+		shims: (options.shims ?? []).map((s) => mapShim(s, cwd)),
+		testShims: (options.testShims ?? []).map((s) => mapShim(s, cwd)),
 		target: options.target,
+		polyfills: options.polyfills ?? {},
 		importMap: options.importMap == null
 			? undefined
-			: valueToUrl(options.importMap),
+			: valueToUrl(options.importMap, cwd),
+		configFile: typeof options.configFile === "string"
+			? valueToUrl(options.configFile, cwd)
+			: undefined,
+		noConfig: options.configFile === false,
+		cwd: pathToFileURL(cwd).toString(),
 	};
 	return wasm.transform(newOptions);
+}
+
+function mapMappingKey(key: string, cwd: string) {
+	key = key.trim();
+	if (/^[a-z]+:/i.test(key) || isRelativeOrAbsolutePath(key)) {
+		return valueToUrl(key, cwd);
+	}
+	// fall back to a path for a key like `mod.ts` that resolved to
+	// one before bare specifiers were supported
+	if (existsSync(resolvePath(cwd, key))) {
+		return valueToUrl(key, cwd);
+	}
+	// leave bare specifiers alone so that they're resolved
+	// via the config file's import map (ex. `my-lib`)
+	return key;
+}
+
+function isRelativeOrAbsolutePath(value: string) {
+	return /^\.\.?[\\/]/.test(value) || isPathAbsolute(value);
 }
 
 type SerializableMappedSpecifier = {
@@ -144,12 +235,13 @@ type SerializableMappedSpecifier = {
 
 function mapMappedSpecifier(
 	value: string | PackageMappedSpecifier,
+	cwd: string,
 ): SerializableMappedSpecifier {
 	if (typeof value === "string") {
 		if (isPathOrUrl(value)) {
 			return {
 				kind: "module",
-				value: valueToUrl(value),
+				value: valueToUrl(value, cwd),
 			};
 		} else {
 			return {
@@ -172,7 +264,7 @@ type SerializableShim = { kind: "package"; value: PackageShim; } | {
 	value: ModuleShim;
 };
 
-function mapShim(value: Shim): SerializableShim {
+function mapShim(value: Shim, cwd: string): SerializableShim {
 	const newValue: Shim = {
 		...value,
 		globalNames: value.globalNames.map(mapToGlobalName),
@@ -184,7 +276,7 @@ function mapShim(value: Shim): SerializableShim {
 			kind: "module",
 			value: {
 				...newValue,
-				module: resolveBareSpecifierOrPath(newValue.module),
+				module: resolveBareSpecifierOrPath(newValue.module, cwd),
 			},
 		};
 	}
@@ -206,10 +298,10 @@ function mapToGlobalName(value: string | GlobalName): GlobalName {
 	}
 }
 
-function resolveBareSpecifierOrPath(value: string) {
+function resolveBareSpecifierOrPath(value: string, cwd: string) {
 	value = value.trim();
 	if (isPathOrUrl(value)) {
-		return valueToUrl(value);
+		return valueToUrl(value, cwd);
 	} else {
 		return value;
 	}

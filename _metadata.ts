@@ -1,4 +1,4 @@
-import { sortCollectionByKeys } from "https://raw.githubusercontent.com/hugoalh/sort-es/v0.3.0/collection.ts";
+import { sortCollectionByKeys } from "https://raw.githubusercontent.com/hugoalh/sort-es/v0.4.0/collection.ts";
 import type { EntryPoint } from "./_deps.ts";
 export interface MetadataBugs {
 	email?: string;
@@ -75,7 +75,7 @@ export interface Metadata {
 	private?: boolean;
 	[name: string]: unknown;
 }
-const metadataKeysDefaultSort: readonly string[] = [
+const metadataKeysDefaultSort: readonly string[] = [/* UNIQUE */
 	"name",
 	"version",
 	"description",
@@ -111,6 +111,7 @@ const metadataKeysDefaultSort: readonly string[] = [
 	"private",
 	"publishConfig"
 ];
+const regexpExecutableName = /^[\d\w\-]+$/;
 interface MetadataEntrypointPaths {
 	types?: string;
 	default: string;
@@ -131,17 +132,19 @@ export function resolveEntrypoints(executables: Record<string, string>, scripts:
 	if (Object.entries(executables).length === 0 && Object.entries(scripts).length === 0) {
 		throw new ReferenceError(`Entrypoints are not defined!`);
 	}
-	const executablesFmt: Record<string, MetadataEntrypointPaths> = Object.fromEntries(Object.entries(executables).map(([name, path]: readonly [string, string]): readonly [string, MetadataEntrypointPaths] => {
-		if (name.trim() !== name) {
-			throw new Error(`Executable name is not well trimmed!`);
+	const metadataBin: Record<string, string> = sortCollectionByKeys(Object.fromEntries(Object.entries(executables).map(([
+		name,
+		path
+	]: readonly [string, string]): readonly [string, string] => {
+		if (regexpExecutableName.test(name)) {
+			throw new SyntaxError(`\`${name}\` is not a valid executable name!`);
 		}
-		if (name.startsWith(".")) {
-			throw new Error(`Executable name must not start with \`.\`!`);
-		}
-		return [name, resolveEntrypointPaths(path, declaration)];
-	}));
-
-	const scriptsFmt: Record<string, MetadataEntrypointPaths> = Object.fromEntries(Object.entries(scripts).map(([name, path]: readonly [string, string]): readonly [string, MetadataEntrypointPaths] => {
+		return [name, resolveEntrypointPaths(path, declaration).default];
+	})));
+	let scriptsMap: Map<string, { import: MetadataEntrypointPaths; }> = new Map<string, { import: MetadataEntrypointPaths; }>(Object.entries(scripts).map(([
+		name,
+		path
+	]: readonly [string, string]): readonly [string, { import: MetadataEntrypointPaths; }] => {
 		if (name.trim() !== name) {
 			throw new Error(`Script name is not well trimmed!`);
 		}
@@ -151,27 +154,31 @@ export function resolveEntrypoints(executables: Record<string, string>, scripts:
 		)) {
 			throw new Error(`Script name must be \`.\` or start with \`./\`!`);
 		}
-		return [name, resolveEntrypointPaths(path, declaration)];
+		return [name, { import: resolveEntrypointPaths(path, declaration) }];
 	}));
-	const metadataBin = sortCollectionByKeys(Object.fromEntries(Object.entries(executablesFmt).map(([name, { default: pathDefault }]: readonly [string, MetadataEntrypointPaths]): readonly [string, string] => {
-		return [name, pathDefault];
-	})));
-	const matadataExports = sortCollectionByKeys(Object.fromEntries(Object.entries(scriptsFmt).map(([name, paths]: readonly [string, MetadataEntrypointPaths]) => {
-		return [name, { import: paths }];
-	})) as Record<string, { import: MetadataEntrypointPaths; }>, {
-		restPlaceFirst: true,
-		specialEntriesKey: ["."]
-	});
+	const scriptDot: { import: MetadataEntrypointPaths; } | undefined = scriptsMap.get(".");
+	scriptsMap.delete(".");
+	scriptsMap = sortCollectionByKeys(scriptsMap);
+	if (typeof scriptDot !== "undefined") {
+		scriptsMap.set(".", scriptDot);
+	}
+	const matadataExports: Record<string, { import: MetadataEntrypointPaths; }> = Object.fromEntries(Array.from(scriptsMap.entries()));
 	return {
 		dnt: [
-			...Object.entries(executables).map(([name, path]: readonly [string, string]): EntryPoint => {
+			...Object.entries(executables).map(([
+				name,
+				path
+			]: readonly [string, string]): EntryPoint => {
 				return {
 					kind: "bin",
 					name,
 					path
 				};
 			}),
-			...Object.entries(scripts).map(([name, path]: readonly [string, string]): EntryPoint => {
+			...Object.entries(scripts).map(([
+				name,
+				path
+			]: readonly [string, string]): EntryPoint => {
 				return {
 					kind: "export",
 					name,
@@ -181,26 +188,38 @@ export function resolveEntrypoints(executables: Record<string, string>, scripts:
 		],
 		metadata: {
 			bin: (Object.entries(metadataBin).length > 0) ? metadataBin : undefined,
-			main: scriptsFmt["."]?.default,
-			module: scriptsFmt["."]?.default,
+			main: matadataExports["."]?.import.default,
+			module: matadataExports["."]?.import.default,
 			exports: (Object.entries(matadataExports).length > 0) ? matadataExports : undefined,
-			types: scriptsFmt["."]?.types
+			types: matadataExports["."]?.import.types
 		}
 	};
 }
-export interface RefactorMetadataOptions {
-	indentation?: number | string;
-	sortKeys?: readonly string[];
-}
-export async function refactorMetadata(filePath: string | URL, entrypoints: MetadataEntrypoints, options: RefactorMetadataOptions = {}): Promise<void> {
-	const {
-		indentation = "\t",
-		sortKeys = metadataKeysDefaultSort
-	}: RefactorMetadataOptions = options;
-	const metadata = JSON.parse(await Deno.readTextFile(filePath));
-	await Deno.writeTextFile(filePath, JSON.stringify(sortCollectionByKeys({
-		...metadata,
+export async function refactorMetadata(filePath: string | URL, entrypoints: MetadataEntrypoints): Promise<void> {
+	const original = {
+		...JSON.parse(await Deno.readTextFile(filePath)),
 		...entrypoints,
 		type: "module"
-	}, { specialEntriesKey: sortKeys }), undefined, indentation));
+	};
+	const result: Record<string, unknown> = {};
+	for (const metadataKey of metadataKeysDefaultSort) {
+		const value = original[metadataKey];
+		if (typeof value !== "undefined") {
+			result[metadataKey] = (
+				metadataKey === "dependencies" ||
+				metadataKey === "devDependencies" ||
+				metadataKey === "peerDependencies" ||
+				metadataKey === "bundleDependencies" ||
+				metadataKey === "optionalDependencies" ||
+				metadataKey === "overrides" ||
+				metadataKey === "engines" ||
+				metadataKey === "os" ||
+				metadataKey === "cpu" ||
+				metadataKey === "devEngines" ||
+				metadataKey === "publishConfig"
+			) ? sortCollectionByKeys(value as Record<string, unknown>) : value;
+			delete original[metadataKey];
+		}
+	}
+	await Deno.writeTextFile(filePath, JSON.stringify({ ...result, ...sortCollectionByKeys(original as Record<string, unknown>) }, undefined, "\t"));
 }

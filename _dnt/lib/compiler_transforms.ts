@@ -1,7 +1,7 @@
 //deno-lint-ignore-file -- Vendor
 // Copyright 2018-2024 the Deno authors. MIT license.
 
-import { ts } from "jsr:@ts-morph/bootstrap@^0.27.0";
+import { ts } from "jsr:@ts-morph/bootstrap@^0.29.0";
 
 // transform `import.meta.url` to a replacement that works in script modules
 export const transformImportMeta: ts.TransformerFactory<ts.SourceFile> = (
@@ -15,8 +15,11 @@ export const transformImportMeta: ts.TransformerFactory<ts.SourceFile> = (
 	return (sourceFile) => ts.visitEachChild(sourceFile, visitNode, context);
 
 	function visitNode(node: ts.Node): ts.Node {
-		// find `import.meta`
-		if (ts.isMetaProperty(node)) {
+		// find `import.meta` (not `new.target`, which is also a meta property)
+		if (
+			ts.isMetaProperty(node) &&
+			node.keywordToken === ts.SyntaxKind.ImportKeyword
+		) {
 			if (isScriptModule) {
 				return getReplacementImportMetaScript();
 			} else {

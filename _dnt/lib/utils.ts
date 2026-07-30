@@ -1,11 +1,31 @@
 //deno-lint-ignore-file -- Vendor
 // Copyright 2018-2024 the Deno authors. MIT license.
 
-import { expandGlob } from "jsr:@std/fs@^1.0.19/expand-glob";
+import { expandGlob } from "jsr:@std/fs@^1.0.24/expand-glob";
 import { resolve as resolvePath } from "node:path";
 import { fileURLToPath as pathFromFileURL, pathToFileURL } from "node:url";
 
-/** Gets the files found in the provided root dir path based on the glob. */
+/** Gets the path of the JavaScript file the TypeScript compiler emits
+ * for the provided output file path. */
+export function toJsFilePath(filePath: string): string {
+	return filePath.replace(COMPILED_EXT_RE, ".js");
+}
+
+/** Gets the path of the declaration file the TypeScript compiler emits
+ * for the provided output file path. */
+export function toDtsFilePath(filePath: string): string {
+	return filePath.replace(COMPILED_EXT_RE, ".d.ts");
+}
+
+// extensions of the transform's output files that the TypeScript compiler
+// emits as `.js` files (the transform already outputs `.mts` and `.mjs` as `.js`)
+const COMPILED_EXT_RE = /\.(?:ts|tsx|jsx)$/i;
+
+/**
+ * Gets the files found in the provided root dir path based on the glob.
+ *
+ * Any `node_modules` directory is never searched.
+ */
 export async function glob(options: {
 	pattern: string;
 	rootDir: string;
@@ -16,7 +36,7 @@ export async function glob(options: {
 		root: options.rootDir,
 		extended: true,
 		globstar: true,
-		exclude: options.excludeDirs,
+		exclude: [...options.excludeDirs, "**/node_modules"],
 	});
 	for await (const entry of entries) {
 		if (entry.isFile) {
@@ -83,14 +103,17 @@ export async function runCommand(opts: {
 	}
 }
 
-export function standardizePath(fileOrDirPath: string) {
+/** Resolves the provided path or file url to an absolute path,
+ * resolving a relative path from `cwd`. */
+export function standardizePath(fileOrDirPath: string, cwd: string) {
 	if (fileOrDirPath.startsWith("file:")) {
 		return pathFromFileURL(fileOrDirPath);
 	}
-	return resolvePath(fileOrDirPath);
+	return resolvePath(cwd, fileOrDirPath);
 }
 
-export function valueToUrl(value: string) {
+/** Resolves the provided value to a url, resolving a relative path from `cwd`. */
+export function valueToUrl(value: string, cwd: string) {
 	const lowerCaseValue = value.toLowerCase();
 	if (
 		lowerCaseValue.startsWith("http:") ||
@@ -102,10 +125,11 @@ export function valueToUrl(value: string) {
 	) {
 		return value;
 	} else {
-		return pathToFileURL(resolvePath(value)).toString();
+		return pathToFileURL(resolvePath(cwd, value)).toString();
 	}
 }
 
 export function getDntVersion(url = import.meta.url) {
-	return /\/dnt@([0-9]+\.[0-9]+\.[0-9]+)\//.exec(url)?.[1] ?? "dev";
+	return /\/(?:dnt@|@deno\/dnt\/)([0-9]+\.[0-9]+\.[0-9]+)\//.exec(url)?.[1] ??
+		"dev";
 }

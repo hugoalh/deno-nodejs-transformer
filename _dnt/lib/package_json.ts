@@ -1,10 +1,17 @@
 //deno-lint-ignore-file -- Vendor
 // Copyright 2018-2024 the Deno authors. MIT license.
 
-import type { EntryPoint, ShimOptions } from "../mod.ts";
+import type {
+	EntryPoint,
+	ShimOptions
+} from "../mod.ts";
 import type { TransformOutput } from "../transform.ts";
 import type { PackageJson } from "./types.ts";
-import { getDntVersion } from "./utils.ts";
+import {
+	getDntVersion,
+	toDtsFilePath,
+	toJsFilePath
+} from "./utils.ts";
 
 export interface GetPackageJsonOptions {
 	transformOutput: TransformOutput;
@@ -33,10 +40,16 @@ export function getPackageJson({
 		.main.entryPoints.map((e, i) => ({
 			name: entryPoints[i].name,
 			kind: entryPoints[i].kind ?? "export",
-			path: e.replace(/\.tsx?$/i, ".js"),
-			types: e.replace(/\.tsx?$/i, ".d.ts"),
+			path: toJsFilePath(e),
+			types: toDtsFilePath(e),
 		}));
-	const exports = finalEntryPoints.filter((e) => e.kind === "export");
+	const exports = finalEntryPoints.filter((e) => e.kind === "export").map((
+		e,
+	) => ({
+		...e,
+		// only a binary entrypoint may go without a name
+		name: e.name!,
+	}));
 	const binaries = finalEntryPoints.filter((e) => e.kind === "bin");
 	const dependencies = {
 		// typescript helpers library (https://www.npmjs.com/package/tslib)
@@ -66,11 +79,6 @@ export function getPackageJson({
 	};
 	const testDevDependencies = testEnabled
 		? ({
-			...(!Object.keys(dependencies).includes("picocolors")
-				? {
-					"picocolors": "^1.0.0",
-				}
-				: {}),
 			// add dependencies from transform
 			...Object.fromEntries(
 				// ignore peer dependencies on this
@@ -80,6 +88,16 @@ export function getPackageJson({
 		})
 		: {};
 	const devDependencies = {
+		// packages that provide the type declarations of a dependency
+		// (ex. an `@types/` package specified by an `X-TypeScript-Types` header)
+		...Object.fromEntries(
+			transformOutput.typesDependencies
+				.filter((d) =>
+					!Object.keys(dependencies).includes(d.name) &&
+					!Object.keys(peerDependencies).includes(d.name)
+				)
+				.map((d) => [d.name, d.version]),
+		),
 		...(shouldIncludeTypesNode()
 			? {
 				"@types/node": "^24.5.0",
@@ -91,7 +109,7 @@ export function getPackageJson({
 	};
 	const scripts = testEnabled
 		? ({
-			test: "node test_runner.js",
+			test: "node test_runner.cjs",
 			// override with specified scripts
 			...(packageJsonObj.scripts ?? {}),
 		})
@@ -103,17 +121,13 @@ export function getPackageJson({
 			types: includeDeclarations ? `./types/${exports[0].types}` : undefined,
 		}
 		: {};
-	const binaryExport = binaries.length > 0
-		? {
-			bin: Object.fromEntries(binaries.map((b) => [b.name, `./${b.path}`])),
-		}
-		: {};
+	const binaryExport = binaries.length > 0 ? { bin: getBin() } : {};
 
 	const final: Record<string, unknown> = {
 		...mainExport,
 		...binaryExport,
 		...packageJsonObj,
-		// scripts: {},
+		scripts: {},
 		...deleteEmptyKeys({
 			exports: {
 				...(includeEsModule || exports.length > 1
@@ -156,6 +170,18 @@ export function getPackageJson({
 		_generatedBy: `dnt@${getDntVersion()}`,
 	};
 	return sortObject(final);
+
+	function getBin() {
+		// a single binary without a name uses the package name as the command
+		if (binaries.length === 1 && binaries[0].name == null) {
+			return getBinPath(binaries[0]);
+		}
+		return Object.fromEntries(binaries.map((b) => [b.name, getBinPath(b)]));
+	}
+
+	function getBinPath(binary: { path: string; }) {
+		return includeEsModule ? `./${binary.path}` : `./script/${binary.path}`;
+	}
 
 	function shouldIncludeTypesNode() {
 		if (Object.keys(dependencies).includes("@types/node")) {

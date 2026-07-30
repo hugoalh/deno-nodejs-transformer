@@ -7,6 +7,7 @@ export {
 	type BuildOptions,
 	type EntryPoint,
 	type LibName,
+	type PolyfillOptions,
 	type ShimOptions,
 	type SourceMapOptions
 } from "./_dnt/mod.ts";

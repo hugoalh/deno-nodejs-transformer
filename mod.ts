@@ -1,17 +1,18 @@
-import { copy as copyFS } from "jsr:@std/fs@^1.0.19/copy";
-import { emptyDir as emptyFSDir } from "jsr:@std/fs@^1.0.19/empty-dir";
-import { ensureDir as ensureFSDir } from "jsr:@std/fs@^1.0.19/ensure-dir";
+import {
+	walk,
+	type FSWalkEntry
+} from "https://raw.githubusercontent.com/hugoalh/fs-es/v0.4.0/walk.ts";
+import { copy as copyFS } from "jsr:@std/fs@^1.0.24/copy";
+import { emptyDir as emptyFSDir } from "jsr:@std/fs@^1.0.24/empty-dir";
+import { ensureDir as ensureFSDir } from "jsr:@std/fs@^1.0.24/ensure-dir";
 import {
 	basename as getPathBasename,
 	join as joinPath
 } from "node:path";
 import {
-	walk,
-	type FSWalkEntry
-} from "https://raw.githubusercontent.com/hugoalh/fs-es/v0.4.0/walk.ts";
-import {
 	build,
 	type LibName,
+	type PolyfillOptions,
 	type ScriptTarget,
 	type SpecifierMappings
 } from "./_deps.ts";
@@ -64,7 +65,7 @@ export interface TransformOptions {
 	/**
 	 * Sets of the ECMAScript library to use. See https://www.typescriptlang.org/tsconfig/#lib.
 	 */
-	lib?: readonly LibName[];
+	lib?: LibName[];
 	/**
 	 * Remap specifiers.
 	 * @example Redirect to a NodeJS specific file.
@@ -98,6 +99,10 @@ export interface TransformOptions {
 	 * @default {false}
 	 */
 	outputDirectoryPreEmpty?: boolean;
+	/**
+	 * Polyfills.
+	 */
+	polyfills?: PolyfillOptions;
 	/**
 	 * Shims.
 	 */
@@ -141,6 +146,7 @@ export async function transform(options: TransformOptions): Promise<void> {
 		metadata,
 		outputDirectory = "nodejs",
 		outputDirectoryPreEmpty = false,
+		polyfills,
 		shims,
 		target = "ES2022",
 		useTSLibHelper = false,
@@ -204,6 +210,7 @@ export async function transform(options: TransformOptions): Promise<void> {
 		mappings,
 		outDir: outputDirectory,
 		package: metadata,
+		polyfills,
 		scriptModule: false,
 		shims: resolveDNTShimsOptions(shims),
 		skipNpmInstall: true,

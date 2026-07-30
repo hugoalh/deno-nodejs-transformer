@@ -2,7 +2,7 @@ import type {
 	Shim,
 	ShimOptions
 } from "./_deps.ts";
-export interface TransformShimOptions extends Omit<ShimOptions, "customDev" | "domException" | "timers"> {
+export interface TransformShimOptions extends Omit<ShimOptions, "customDev" | "domException"> {
 	/**
 	 * Shim `Blob` via `node:buffer`.
 	 * 
@@ -27,6 +27,11 @@ export interface TransformShimOptions extends Omit<ShimOptions, "customDev" | "d
 	 * @default {true}
 	 */
 	prompts?: boolean;
+	/**
+	 * Shim `setInterval` and `setTimeout`.
+	 * @default {false}
+	 */
+	timers?: boolean;
 	/**
 	 * Shim `fetch`, `File`, `FormData`, `Headers`, `Request`, and `Response` via {@linkcode https://github.com/nodejs/undici undici}.
 	 * 
@@ -65,7 +70,7 @@ export function resolveDNTShimsOptions(options: TransformShimOptions = {}): Shim
 		deno: options.deno ?? true,
 		domException: false,
 		prompts: options.prompts ?? true,
-		timers: true,
+		timers: options.timers ?? false,
 		undici: options.undici ?? false,
 		weakRef: options.weakRef ?? false,
 		webSocket: options.webSocket ?? false,
