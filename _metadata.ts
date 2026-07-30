@@ -136,7 +136,7 @@ export function resolveEntrypoints(executables: Record<string, string>, scripts:
 		name,
 		path
 	]: readonly [string, string]): readonly [string, string] => {
-		if (regexpExecutableName.test(name)) {
+		if (!regexpExecutableName.test(name)) {
 			throw new SyntaxError(`\`${name}\` is not a valid executable name!`);
 		}
 		return [name, resolveEntrypointPaths(path, declaration).default];
