@@ -67,6 +67,7 @@ Currently, this is a modified edition of the [Deno DNT](https://github.com/denol
     metadata: Metadata;
     outputDirectory?: string;
     outputDirectoryPreEmpty?: boolean;
+    polyfills?: PolyfillOptions;
     shims?: TransformShimOptions;
     target?: ScriptTarget;
     useTSLibHelper?: boolean;
