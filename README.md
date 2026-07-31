@@ -11,9 +11,23 @@ Transform Deno code to NodeJS code.
 
 Currently, this is a modified edition of the [Deno DNT](https://github.com/denoland/dnt) which:
 
-- Always force with ECMAScript module
+- Force with ECMAScript
 - Improve file structure
 - Unify configuration
+
+| **Support** | **D.N.T.** | **[Deno DNT](https://github.com/denoland/dnt)** | **[`deno pack`](https://docs.deno.com/runtime/reference/cli/pack)** | **[`deno transpile`](https://docs.deno.com/runtime/reference/cli/transpile)** | **[TypeScript Compiler `tsc`](https://www.typescriptlang.org)** |
+|:--|:-:|:-:|:-:|:-:|:-:|
+| Resolve JSR depends | ✔️ | ✔️ | ⚠️ Only JSR NPM compatibility layer | ⚠️ Only JSR NPM compatibility layer | ❌ |
+| Resolve remote depends | ✔️ | ✔️ | ✔️ | ✔️ | ❌ |
+| Shim `Deno` | ✔️ | ✔️ | ✔️ | ✔️ | ❌ |
+| Polyfills | ✔️ Full control | ✔️ Full control | ✔️ By target | ✔️ By target | ✔️ By target |
+| Entrypoints for executables | ✔️ | ✔️ | ❌ | ❌ | N/A |
+| Output CommonJS | ❌ | ✔️ | ❌ | ❌ | ✔️ |
+| Output UMD | ❌ | ✔️ | ❌ | ❌ | ✔️ |
+| Output declaration (`.d.ts`) | ✔️ Only beside | ✔️ | ✔️ | ✔️ | ✔️ |
+| Output source map (`.d.ts.map`) | ✔️ | ⚠️ Also output source | ✔️ | ✔️ | ✔️ |
+| Type check | ❌ | ✔️ | ❌ | ❌ | ✔️ |
+| Test | ❌ | ✔️ | ❌ | ❌ | ❌ |
 
 ## ▶️ Begin - Deno
 
@@ -77,7 +91,7 @@ Currently, this is a modified edition of the [Deno DNT](https://github.com/denol
 
 > [!NOTE]
 > - For the full or prettier documentation, can visit via:
->   - [Deno CLI `deno doc`](https://docs.deno.com/runtime/reference/cli/doc/)
+>   - [Deno CLI `deno doc`](https://docs.deno.com/runtime/reference/cli/doc)
 >   - [JSR](https://jsr.io/@hugoalh/deno-nodejs-transformer)
 
 ### ✍️ Examples

@@ -553,7 +553,7 @@ export async function build(options: BuildOptions): Promise<void> {
 			outputFileText,
 		);
 
-		if (options.scriptModule && !binOnlyFiles.has(outputFile.filePath)) {
+		/* if (options.scriptModule && !binOnlyFiles.has(outputFile.filePath)) {
 			// cjs does not support TLA so error fast if we find one
 			const tlaLocation = getTopLevelAwaitLocation(sourceFile);
 			if (tlaLocation) {
@@ -567,20 +567,20 @@ export async function build(options: BuildOptions): Promise<void> {
 					"Build failed due to top level await when creating CommonJS/UMD package.",
 				);
 			}
-		}
+		} */
 
-		if (!options.skipSourceOutput) {
-			/* writeFile(outputFilePath, outputFileText); */
-		}
+		/* if (!options.skipSourceOutput) {
+			writeFile(outputFilePath, outputFileText);
+		} */
 	}
 
 	let program = getProgramAndMaybeTypeCheck("ESM");
 
 	// emit only the .d.ts files
-	if (options.declaration === "separate") {
+	/* if (options.declaration === "separate") {
 		log("Emitting declaration files...");
 		emit({ onlyDtsFiles: true });
-	}
+	} */
 
 	if (options.esModule) {
 		// emit the esm files
@@ -605,7 +605,7 @@ export async function build(options: BuildOptions): Promise<void> {
 	}
 
 	// emit the script files
-	if (options.scriptModule) {
+	/* if (options.scriptModule) {
 		log("Emitting script package...");
 		project.compilerOptions.set({
 			declaration: options.declaration === "inline",
@@ -632,18 +632,18 @@ export async function build(options: BuildOptions): Promise<void> {
 			joinPath(scriptOutDir, "package.json"),
 			`{\n  "type": "commonjs"\n}\n`,
 		);
-	}
+	} */
 
 	// ensure this is done before running tests
 	/* await npmInstallPromise; */
 
 	// run post build action
-	if (options.postBuild) {
+	/* if (options.postBuild) {
 		log("Running post build action...");
 		await options.postBuild();
-	}
+	} */
 
-	if (options.test) {
+	/* if (options.test) {
 		log("Running tests...");
 		createTestLauncherScript();
 		await runNpmCommand({
@@ -651,7 +651,7 @@ export async function build(options: BuildOptions): Promise<void> {
 			args: ["run", "test"],
 			cwd: options.outDir,
 		});
-	}
+	} */
 
 	log("Complete!");
 
@@ -774,7 +774,7 @@ export async function build(options: BuildOptions): Promise<void> {
 		);
 	}
 
-	function createNpmIgnore() {
+	/* function createNpmIgnore() {
 		const fileText = getNpmIgnoreText({
 			sourceMap: options.compilerOptions?.sourceMap,
 			inlineSources: options.compilerOptions?.inlineSources,
@@ -788,9 +788,9 @@ export async function build(options: BuildOptions): Promise<void> {
 			joinPath(options.outDir, ".npmignore"),
 			fileText,
 		);
-	}
+	} */
 
-	function runNpmInstall() {
+	/* function runNpmInstall() {
 		if (options.skipNpmInstall) {
 			return Promise.resolve();
 		}
@@ -800,7 +800,7 @@ export async function build(options: BuildOptions): Promise<void> {
 			args: ["install"],
 			cwd: options.outDir,
 		});
-	}
+	} */
 
 	async function transformEntryPoints(): Promise<TransformOutput> {
 		const { shims, testShims } = shimOptionsToTransformShims(options.shims);
