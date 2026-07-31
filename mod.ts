@@ -2,9 +2,17 @@ import {
 	walk,
 	type FSWalkEntry
 } from "https://raw.githubusercontent.com/hugoalh/fs-es/v0.4.0/walk.ts";
+import {
+	isJSONObject,
+	type JSONObject
+} from "https://raw.githubusercontent.com/hugoalh/is-json-es/v1.0.6/mod.ts";
 import { copy as copyFS } from "jsr:@std/fs@^1.0.24/copy";
 import { emptyDir as emptyFSDir } from "jsr:@std/fs@^1.0.24/empty-dir";
 import { ensureDir as ensureFSDir } from "jsr:@std/fs@^1.0.24/ensure-dir";
+import {
+	parse as parseJSONC,
+	type JsonValue
+} from "jsr:@std/jsonc@^1.0.2";
 import {
 	basename as getPathBasename,
 	join as joinPath
@@ -130,6 +138,29 @@ class ChdirDispose {
 	}
 	[Symbol.dispose](): void {
 		Deno.chdir(this.#from);
+	}
+}
+export async function readManifest(filePath?: string): Promise<JSONObject | undefined> {
+	for (const _filePath of ((typeof filePath === "undefined") ? [
+		"jsr.jsonc",
+		"jsr.json",
+		"deno.jsonc",
+		"deno.json"
+	] : [filePath])) {
+		try {
+			const manifest: JsonValue = parseJSONC(await Deno.readTextFile(_filePath));
+			if (isJSONObject(manifest)) {
+				return manifest;
+			}
+		} catch (error) {
+			if (
+				error instanceof Deno.errors.NotCapable ||
+				error instanceof Deno.errors.NotFound
+			) {
+				continue;
+			}
+			throw error;
+		}
 	}
 }
 export async function transform(options: TransformOptions): Promise<void> {
