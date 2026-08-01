@@ -15,7 +15,7 @@
 		"proseWrap": "preserve",
 		"quoteProps": "asNeeded",
 		"semiColons": true,
-		"singleBodyPosition": "nextLine",
+		"singleBodyPosition": "sameLine",
 		"singleQuote": false,
 		"sortNamedExports": "caseInsensitive",
 		"sortNamedImports": "caseInsensitive",
@@ -23,7 +23,7 @@
 		"spaceSurroundingProperties": true,
 		"trailingCommas": "never",
 		"typeLiteral.separatorKind": "semiColon",
-		"useBraces": "always",
+		"useBraces": "maintain",
 		"useEditorConfig": true,
 		"useTabs": true,
 		"vueComponentCase": "ignore"
