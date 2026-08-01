@@ -127,7 +127,7 @@ export function getPackageJson({
 		...mainExport,
 		...binaryExport,
 		...packageJsonObj,
-		scripts: {},
+		/* scripts: {}, */
 		...deleteEmptyKeys({
 			exports: {
 				...(includeEsModule || exports.length > 1
@@ -167,7 +167,7 @@ export function getPackageJson({
 			peerDependencies,
 			devDependencies,
 		}),
-		_generatedBy: `dnt@${getDntVersion()}`,
+		/* _generatedBy: `dnt@${getDntVersion()}`, */
 	};
 	return sortObject(final);
 
