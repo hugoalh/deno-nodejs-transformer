@@ -109,6 +109,7 @@ export interface TransformOptions {
 	outputDirectoryPreEmpty?: boolean;
 	/**
 	 * Polyfills.
+	 * @default {false}
 	 */
 	polyfills?: PolyfillOptions;
 	/**
@@ -161,7 +162,7 @@ export async function transform(options: TransformOptions): Promise<void> {
 		metadata,
 		outputDirectory = "nodejs",
 		outputDirectoryPreEmpty = false,
-		polyfills,
+		polyfills = false,
 		shims,
 		target = "ES2022",
 		useTSLibHelper = false,
