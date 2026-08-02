@@ -140,28 +140,12 @@ class ChdirDispose {
 		Deno.chdir(this.#from);
 	}
 }
-export async function readManifest(filePath?: string): Promise<JSONObject | undefined> {
-	for (const _filePath of ((typeof filePath === "undefined") ? [
-		"jsr.jsonc",
-		"jsr.json",
-		"deno.jsonc",
-		"deno.json"
-	] : [filePath])) {
-		try {
-			const manifest: JsonValue = parseJSONC(await Deno.readTextFile(_filePath));
-			if (isJSONObject(manifest)) {
-				return manifest;
-			}
-		} catch (error) {
-			if (
-				error instanceof Deno.errors.NotCapable ||
-				error instanceof Deno.errors.NotFound
-			) {
-				continue;
-			}
-			throw error;
-		}
+export async function readManifest(filePath: string): Promise<JSONObject> {
+	const manifest: JsonValue = parseJSONC(await Deno.readTextFile(filePath));
+	if (!isJSONObject(manifest)) {
+		throw new Error(`Invalid manifest format!`);
 	}
+	return manifest;
 }
 export async function transform(options: TransformOptions): Promise<void> {
 	const {
