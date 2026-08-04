@@ -262,11 +262,11 @@ export function transform(options) {
 }
 
 function __wbg_adapter_46(arg0, arg1, arg2) {
-	wasm.closure817_externref_shim(arg0, arg1, arg2);
+	wasm.closure819_externref_shim(arg0, arg1, arg2);
 }
 
 function __wbg_adapter_174(arg0, arg1, arg2, arg3) {
-	wasm.closure2256_externref_shim(arg0, arg1, arg2, arg3);
+	wasm.closure2258_externref_shim(arg0, arg1, arg2, arg3);
 }
 
 export function __wbg_apply_eb9e9b97497f91e4() {
@@ -819,8 +819,8 @@ export function __wbindgen_cb_drop(arg0) {
 	return ret;
 }
 
-export function __wbindgen_closure_wrapper3493(arg0, arg1, arg2) {
-	const ret = makeMutClosure(arg0, arg1, 818, __wbg_adapter_46);
+export function __wbindgen_closure_wrapper3522(arg0, arg1, arg2) {
+	const ret = makeMutClosure(arg0, arg1, 820, __wbg_adapter_46);
 	return ret;
 }
 
