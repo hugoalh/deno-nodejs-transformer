@@ -376,9 +376,7 @@ export async function build(options: BuildOptions): Promise<void> {
 	} */
 	// the declaration maps point at the `src` directory, so they're only useful
 	// when it's written out and published alongside them
-	/* const declarationMap = (options.declarationMap ?? false) &&
-		!!options.declaration && !options.skipSourceOutput; */
-	const declarationMap = (options.declarationMap ?? false) && !!options.declaration;
+	const declarationMap = (options.declarationMap ?? false) && !!options.declaration && !options.skipSourceOutput;
 	if (options.declarationMap && !declarationMap) {
 		warn(
 			`Ignoring the 'declarationMap' build option because it requires ` +
@@ -456,10 +454,12 @@ export async function build(options: BuildOptions): Promise<void> {
 	} */
 
 	log("Building project...");
+	/* const esmOutDir = joinPath(options.outDir, "esm"); */
 	const esmOutDir = options.outDir;
 	const scriptOutDir = joinPath(options.outDir, "script");
 	const typesOutDir = joinPath(options.outDir, "types");
-	const srcOutDir = joinPath(options.outDir, "src");
+	/* const srcOutDir = joinPath(options.outDir, "src"); */
+	const srcOutDir = options.outDir;
 	const compilerScriptTarget = getCompilerScriptTarget(scriptTarget);
 	// TypeScript 6.0 no longer automatically discovers the `@types` packages
 	// installed in the output's node_modules, so resolve and include them
@@ -541,7 +541,7 @@ export async function build(options: BuildOptions): Promise<void> {
 	) {
 		const outputFilePath = joinPath(
 			options.outDir,
-			"src",
+			/* "src", */
 			outputFile.filePath,
 		);
 		const outputFileText = binaryEntryPointPaths.has(outputFile.filePath)
@@ -569,9 +569,9 @@ export async function build(options: BuildOptions): Promise<void> {
 			}
 		} */
 
-		/* if (!options.skipSourceOutput) {
+		if (!options.skipSourceOutput) {
 			writeFile(outputFilePath, outputFileText);
-		} */
+		}
 	}
 
 	let program = getProgramAndMaybeTypeCheck("ESM");

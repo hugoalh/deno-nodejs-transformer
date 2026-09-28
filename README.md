@@ -15,20 +15,6 @@ Currently, this is a modified edition of the [Deno DNT](https://github.com/denol
 - Improve file structure
 - Unify configuration
 
-| **Support** | **D.N.T.** | **[Deno DNT](https://github.com/denoland/dnt)** | **[`deno pack`](https://docs.deno.com/runtime/reference/cli/pack)** | **[`deno transpile`](https://docs.deno.com/runtime/reference/cli/transpile)** | **[TypeScript Compiler `tsc`](https://www.typescriptlang.org)** |
-|:--|:-:|:-:|:-:|:-:|:-:|
-| Resolve JSR depends | ✔️ | ✔️ | ⚠️ Only JSR NPM compatibility layer | ⚠️ Only JSR NPM compatibility layer | ❌ |
-| Resolve remote depends | ✔️ | ✔️ | ✔️ | ✔️ | ❌ |
-| Shim `Deno` | ✔️ | ✔️ | ✔️ | ✔️ | ❌ |
-| Polyfills | ✔️ Full control | ✔️ Full control | ✔️ By target | ✔️ By target | ✔️ By target |
-| Entrypoints for executables | ✔️ | ✔️ | ❌ | ❌ | N/A |
-| Output CommonJS | ❌ | ✔️ | ❌ | ❌ | ✔️ |
-| Output UMD | ❌ | ✔️ | ❌ | ❌ | ✔️ |
-| Output declaration (`.d.ts`) | ✔️ Only beside | ✔️ | ✔️ | ✔️ | ✔️ |
-| Output source map (`.d.ts.map`) | ✔️ | ⚠️ Also output source | ✔️ | ✔️ | ✔️ |
-| Type check | ❌ | ✔️ | ❌ | ❌ | ✔️ |
-| Test | ❌ | ✔️ | ❌ | ❌ | ❌ |
-
 ## ▶️ Begin - Deno
 
 - **[Deno](https://deno.land/)** >= v2.9.0
@@ -65,6 +51,7 @@ Currently, this is a modified edition of the [Deno DNT](https://github.com/denol
     fixDenoDNTModifications?: boolean;
     generateDeclaration?: boolean;
     generateDeclarationMap?: boolean;
+    generateSourceMap?: boolean;
     importsMap?: string;
     lib?: LibName[];
     mappings?: SpecifierMappings;

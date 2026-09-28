@@ -23,6 +23,7 @@ import {
 	type LibName,
 	type PolyfillOptions,
 	type ScriptTarget,
+	type SourceMapOptions,
 	type SpecifierMappings
 } from "./_deps.ts";
 import { fixDenoDNTModification } from "./_fixes.ts";
@@ -97,6 +98,11 @@ export interface TransformOptions {
 	 * @default {false}
 	 */
 	generateDeclarationMap?: boolean;
+	/**
+	 * Whether to generate source map files (`.js.map`).
+	 * @default {false}
+	 */
+	generateSourceMap?: SourceMapOptions;
 	/**
 	 * Imports map, by relative file path under the {@link workspace workspace}.
 	 */
@@ -180,6 +186,7 @@ export async function transform(options: TransformOptions): Promise<void> {
 		fixDenoDNTModifications = true,
 		generateDeclaration = true,
 		generateDeclarationMap = false,
+		generateSourceMap = false,
 		importsMap,
 		lib,
 		mappings,
@@ -233,7 +240,7 @@ export async function transform(options: TransformOptions): Promise<void> {
 			noStrictGenericChecks: false,
 			noUncheckedIndexedAccess: false,
 			skipLibCheck: true,
-			sourceMap: false,
+			sourceMap: generateSourceMap,
 			strictBindCallApply: false,
 			strictFunctionTypes: false,
 			strictNullChecks: false,
@@ -254,7 +261,7 @@ export async function transform(options: TransformOptions): Promise<void> {
 		scriptModule: false,
 		shims: resolveDNTShimsOptions(shims),
 		skipNpmInstall: true,
-		skipSourceOutput: true,
+		skipSourceOutput: false,
 		test: false,
 		typeCheck: false
 	});
