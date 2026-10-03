@@ -1,7 +1,5 @@
-import type {
-	Shim,
-	ShimOptions
-} from "./_deps.ts";
+import type { ShimOptions } from "./_dnt/mod.ts";
+import type { Shim } from "./_dnt/transform.ts";
 export interface TransformShimOptions extends Omit<ShimOptions, "customDev" | "domException"> {
 	/**
 	 * Shim `Blob` via `node:buffer`.

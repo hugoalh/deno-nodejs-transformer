@@ -1,5 +1,5 @@
 import { sortCollectionByKeys } from "jsr:@hugoalh/sort@^0.4.0/collection";
-import type { EntryPoint } from "./_deps.ts";
+import type { EntryPoint } from "./_dnt/mod.ts";
 export interface MetadataBugs {
 	email?: string;
 	url?: string;

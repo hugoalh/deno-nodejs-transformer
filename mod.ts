@@ -18,14 +18,13 @@ import {
 	join as joinPath
 } from "node:path";
 import * as zod from "npm:zod@^4.4.3";
+import type { ScriptTarget } from "./_dnt/lib/types.ts";
 import {
 	build,
 	type LibName,
 	type PolyfillOptions,
-	type ScriptTarget,
-	type SourceMapOptions,
-	type SpecifierMappings
-} from "./_deps.ts";
+} from "./_dnt/mod.ts";
+import type { SpecifierMappings } from "./_dnt/transform.ts";
 import { fixDenoDNTModification } from "./_fixes.ts";
 import {
 	refactorMetadata,
@@ -102,7 +101,7 @@ export interface TransformOptions {
 	 * Whether to generate source map files (`.js.map`).
 	 * @default {false}
 	 */
-	generateSourceMap?: SourceMapOptions;
+	generateSourceMap?: boolean;
 	/**
 	 * Imports map, by relative file path under the {@link workspace workspace}.
 	 */
