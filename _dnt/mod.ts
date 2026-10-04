@@ -569,7 +569,10 @@ export async function build(options: BuildOptions): Promise<void> {
 			}
 		} */
 
-		if (!options.skipSourceOutput) {
+		if ((
+			options.declarationMap ||
+			options.compilerOptions?.sourceMap
+		) && !options.skipSourceOutput) {
 			writeFile(outputFilePath, outputFileText);
 		}
 	}
