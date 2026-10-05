@@ -260,7 +260,10 @@ export async function transform(options: TransformOptions): Promise<void> {
 		scriptModule: false,
 		shims: resolveDNTShimsOptions(shims),
 		skipNpmInstall: true,
-		skipSourceOutput: false,
+		skipSourceOutput: !(
+			generateDeclarationMap ||
+			generateSourceMap
+		),
 		test: false,
 		typeCheck: false
 	});
