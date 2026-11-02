@@ -3,7 +3,7 @@ const regexpImportDNTShims = /^import .*?dntShim from ".+?\/_dnt\.shims\.js";\r?
 const regexpShebangs = /^#!.+?\r?\n/g;
 export async function fixDenoDNTModification(filePath: string | URL): Promise<void> {
 	const original: string = await Deno.readTextFile(filePath);
-	let modified: string = structuredClone(original);
+	let modified: string = original;
 	// Shebang should only have at most 1, but no need to care in here.
 	const shebang: readonly string[] = Array.from(modified.matchAll(regexpShebangs), (match: RegExpExecArray): string => {
 		return match[0];

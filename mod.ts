@@ -49,13 +49,13 @@ class ManifestReader {
 		return structuredClone(zodManifestExports.parse(this.#content.exports));
 	}
 	get license(): string {
-		return structuredClone(zodStringNonEmpty.parse(this.#content.license));
+		return zodStringNonEmpty.parse(this.#content.license);
 	}
 	get name(): string {
-		return structuredClone(zodStringNonEmpty.parse(this.#content.name));
+		return zodStringNonEmpty.parse(this.#content.name);
 	}
 	get version(): string {
-		return structuredClone(zodStringNonEmpty.parse(this.#content.version));
+		return zodStringNonEmpty.parse(this.#content.version);
 	}
 }
 export async function readManifest(filePath: string): Promise<ManifestReader> {
